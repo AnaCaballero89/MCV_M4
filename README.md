@@ -24,6 +24,7 @@ Mandatory means if there any point that it is not done, then the weekly task wil
 -> He añadido 2 imágenes y dos fondos(toinsertX y backgroundX) pero esta sin probar.
 -> la primera es un pato en una cascada y la otra una ardilla en un jardin.
 -> también podemos jugar con nuestras caras y las dos que nos dan (estoy en ello, no me funciona bien)
+-> No funciona con nuestras caras por que la mascara ha de ser identica (en forma y tamaño). Yo la hacia rectangular. Podemos usar otra cara u crear una  mascara nueva nosotros para Lena y Girl
 
 * The objective is that if param.driving exists, do the Poisson editing, and if it doesn’t, do the Inpainting by Laplace’s equation. 
 * Deliverable of mandatory. Thu. Oct. 18. 18h 
