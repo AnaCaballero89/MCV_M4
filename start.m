@@ -9,7 +9,8 @@ clearvars;
 % 7 Girl in Nilai's Face
 % 8 Ana in Nilai'Face
 % 9 Nilai in Ana's Face
-% 10 Duck in Scene
+% 10 Duck in Waterfall (img1)
+% 11 Squirrel in Garden (img2)
 
 indexPhoto =1;
 if indexPhoto ==1
@@ -35,21 +36,18 @@ elseif indexPhoto ==2
     mask_src2=logical(imread('mask_dst_mouth.png'));
     mask_dst2=logical(imread('mask_src_mouth.png'));
 else % hay un problema con la mascara (parece)
-%     dst = double(imread('lena.png'));
-%     src = double(imread('ana.png')); % flipped girl, because of the eyes
-% 
-%     %masks to exchange: Eyes
-%    % mask_src1=logical(imread('mask_src_eyes.png'));
-%     mask_dst1=logical(imread('mask_ana_eyes.png'));
-% 
-%     %masks to exchange: Mouth
-%     mask_src2=logical(imread('mask_src_mouth.png'));
-%     mask_dst2=logical(imread('mask_ana_mouth.png'));
-%     
-%     [y,x] = size(double(imread('ana.png')));
-%     mask_src1 = zeros(y,x);
-%     mask_src1(78:115, 49:88) = 1;
-%     mask_src1= logical(mask_src1);
+    dst = double(imread('lena.png'));
+    src = double(imread('ana.png')); % flipped girl, because of the eyes
+
+    %masks to exchange: Eyes
+    %mask_src1=logical(imread('mask_src_eyes.png'));
+    %mask_dst1=logical(imread('mask_ana_eyes.png'));
+ 
+    %masks to exchange: Mouth
+    %mask_src2=logical(imread('mask_src_mouth.png'));
+    %mask_dst2=logical(imread('mask_ana_mouth.png'));
+    
+
 end
 
 [ni,nj, nChannels]=size(dst);
