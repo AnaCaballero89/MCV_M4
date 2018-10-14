@@ -10,6 +10,7 @@ clearvars;
 % 8 Ana in Nilai'Face
 % 9 Nilai in Ana's Face
 % 10 ladybug on leaves
+% 11 duck and cascade
 
 indexPhoto =11;
 if indexPhoto ==1 % <- works!
@@ -55,7 +56,7 @@ elseif indexPhoto ==3% <- hay un problema con la mascara (parece),
     aux2 = zeros(a, b);
     aux2(417:479, 231:348) = 1;
     mask_src2 = logical(aux2);
-elseif indexPhoto ==11% <- works!
+elseif indexPhoto ==10% <- works!
     dst = double(imread('hojas.png'));
     src = double(imread('mariquita.png'));
     aux1 = zeros(256,256);
@@ -64,6 +65,19 @@ elseif indexPhoto ==11% <- works!
     
     aux1 = zeros(256,256);
     aux1(80:230, 80:150) = 1;
+    mask_src1 = logical(aux1);
+    mask_src1;
+else % indexPhoto==11 <- works!
+    % 
+    dst = double(imread('background1.png'));
+    src = double(imread('toinsert1.png'));
+    
+    aux1 = zeros(712,534);
+    aux1(532:712, 1:161) = 1;
+    mask_dst1 = logical(aux1);
+    
+    aux1 = zeros(712,534);
+    aux1(120:300, 250:410) = 1;
     mask_src1 = logical(aux1);
     mask_src1;
 end
