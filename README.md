@@ -1,8 +1,8 @@
 "# MCV_M2" 
 TASKS TO DO:
-==============================================
+
 ======================= MANDATORY ==============
-==============================================
+
 Mandatory means if there any point that it is not done, then the weekly task will FAIL. Implement the importing gradients method from the Patrick’s paper. 
 
 * Read the Patrick Perez’s paper. 
@@ -29,9 +29,9 @@ Mandatory means if there any point that it is not done, then the weekly task wil
 * Deliverable of mandatory. Thu. Oct. 18. 18h 
 * WARNING: Be careful with the sign on the discretization of the Laplacian operator!!!!!!
 
-============================================== 
+ 
 ======================= OPTIONAL ==============
-============================================== 
+ 
 1. Test with your own real images. Each successfully edited image will sum up 0.1 points. 
 * Cuando funcione la ultima del opcional tendremos 11 combinaciones, incluida la que nos dan.
 
