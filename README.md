@@ -7,29 +7,14 @@ Mandatory means if there any point that it is not done, then the weekly task wil
 
 * Read the Patrick Perez’s paper. 
 * Complete start.m file 
--> he sustituido sol_ por G5 en todo, y he rellenado el fichero de start.m
--> hay un if para elegir la foto
-
 * Modify the G??? Laplace Equation Axb.m file and create a G??? Poisson Equation Axb.m adding ONLY 4 lines. 3 of this 4 lines should be 
  - if (isfield(param, ’driving’)) 
  - else 
  - end
--> hecho pero no son 4, son 5. En el pixek que cambia:
-            if (isfield(param, 'driving'))
-                b(p) = param.driving(i-1,j-1);
-            else
-                b(p) = 0;
-            end 
 * Test with your own images
--> He añadido 2 imágenes y dos fondos(toinsertX y backgroundX) pero esta sin probar.
--> la primera es un pato en una cascada y la otra una ardilla en un jardin.
--> también podemos jugar con nuestras caras y las dos que nos dan (estoy en ello, no me funciona bien)
--> No funciona con nuestras caras por que la mascara ha de ser identica (en forma y tamaño). Yo la hacia rectangular. Podemos usar otra cara u crear una  mascara nueva nosotros para Lena y Girl
-
 * The objective is that if param.driving exists, do the Poisson editing, and if it doesn’t, do the Inpainting by Laplace’s equation. 
 * Deliverable of mandatory. Thu. Oct. 18. 18h 
 * WARNING: Be careful with the sign on the discretization of the Laplacian operator!!!!!!
-
  
 ======================= OPTIONAL ==============
  
