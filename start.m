@@ -12,7 +12,7 @@ clearvars;
 % 9 ladybug on leaves
 % 10 duck and cascade
 
-indexPhoto =10;
+indexPhoto =8;
 if indexPhoto < 9
     switch(indexPhoto) %choose name files for each index
         case 1
@@ -23,15 +23,15 @@ if indexPhoto < 9
             destination = 'girl';
         case 3
             origin = 'ana';
-            destination = 'girl';
+            destination = 'lena';
         case 4
             origin = 'nilai';
-            destination = 'girl';
+            destination = 'lena';
         case 5
-            origin = 'lena';
+            origin = 'girl';
             destination = 'ana';
         case 6
-            origin = 'lena';
+            origin = 'girl';
             destination = 'nilai';
         case 7
             origin = 'ana';
