@@ -12,7 +12,7 @@ clearvars;
 % 9 ladybug on leaves
 % 10 duck and cascade
 
-indexPhoto =9;
+indexPhoto =10;
 if indexPhoto < 9
     switch(indexPhoto) %choose name files for each index
         case 1
@@ -70,12 +70,12 @@ else % indexPhoto==10
     dst = double(imread('background1.png'));
     src = double(imread('toinsert1.png'));
     
-    aux1 = zeros(712,534);
-    aux1(532:712, 1:161) = 1;
+    aux1 = zeros(256,256);
+    aux1(188:256, 1:96) = 1;
     mask_dst1 = logical(aux1);
-    
-    aux1 = zeros(712,534);
-    aux1(120:300, 250:410) = 1;
+    % duck 
+    aux1 = zeros(256,256);
+    aux1(45:113, 105:200) = 1;
     mask_src1 = logical(aux1);
     mask_src1;
 end
