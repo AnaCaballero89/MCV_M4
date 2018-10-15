@@ -11,8 +11,8 @@ clearvars;
 % 8 Nilai in Ana's Face
 % 9 ladybug on leaves
 % 10 duck and cascade
-
-indexPhoto =8;
+% 11 castle halloween pumpkins
+indexPhoto =11;
 if indexPhoto < 9
     switch(indexPhoto) %choose name files for each index
         case 1
@@ -66,7 +66,7 @@ elseif indexPhoto ==9
     mask_src1 = logical(aux1);
     mask_src1;
     
-else % indexPhoto==10
+elseif indexPhoto==10
     dst = double(imread('background1.png'));
     src = double(imread('toinsert1.png'));
     
@@ -76,6 +76,18 @@ else % indexPhoto==10
     % duck 
     aux1 = zeros(256,256);
     aux1(45:113, 105:200) = 1;
+    mask_src1 = logical(aux1);
+    mask_src1;
+else% indexPhoto==11
+    dst = double(imread('background2.png'));
+    src = double(imread('toinsert2.png'));
+    
+    aux1 = zeros(256,256);
+    aux1(15:175, 140:185) = 1;
+    mask_dst1 = logical(aux1);
+    % castle 
+    aux1 = zeros(256,256);
+    aux1(15:175, 25:70) = 1;
     mask_src1 = logical(aux1);
     mask_src1;
 end
