@@ -1,7 +1,7 @@
 "# MCV_M2" 
 TASKS TO DO:
 
-======================= MANDATORY ==============
+======================= MANDATORY (ALL DONE!!!) ==============
 
 Mandatory means if there any point that it is not done, then the weekly task will FAIL. Implement the importing gradients method from the Patrick’s paper. 
 
@@ -19,7 +19,7 @@ Mandatory means if there any point that it is not done, then the weekly task wil
 ======================= OPTIONAL ==============
  
 1. Test with your own real images. Each successfully edited image will sum up 0.1 points. 
-* Cuando funcione la ultima del opcional tendremos 11 combinaciones, incluida la que nos dan.
+(DONE)
 
 2. +1 Points: Implement Seamless cloning with mixing gradients. 
 3. Try different numerical schemes 
@@ -29,3 +29,6 @@ Mandatory means if there any point that it is not done, then the weekly task wil
 3.3 +10 points: Multigrid. 
 
 4. Feel free to experiment
+
+link to skides
+https://drive.google.com/open?id=1bZnuo0bcyPTcLcgshagm7rrB7Z_rxZ6dT_dPHoRoAm0
