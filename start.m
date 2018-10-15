@@ -1,62 +1,59 @@
 clearvars;
 
 % indexPhoto
-% 1 example photo
-% 2 example reverse
+% 1 girl in Lena's face
+% 2 Lena in girl's face
 % 3 Ana in Lena's Face
 % 4 Nilai in Lena's Face
 % 5 Girl in Ana's Face
-% 7 Girl in Nilai's Face
-% 8 Ana in Nilai'Face
-% 9 Nilai in Ana's Face
-% 10 ladybug on leaves
-% 11 duck and cascade
+% 6 Girl in Nilai's Face
+% 7 Ana in Nilai's Face
+% 8 Nilai in Ana's Face
+% 9 ladybug on leaves
+% 10 duck and cascade
 
-indexPhoto =11;
-if indexPhoto ==1 % <- works!
-    dst = double(imread('lena.png'));
-    src = double(imread('girl.png')); % flipped girl, because of the eyes
+indexPhoto = 1;
+if indexPhoto < 9
+switch(indexPhoto) %choose name files for each index
+    case 1
+        origin = 'girl';
+        destination = 'lena';
+    case 2
+        origin = 'lena';
+        destination = 'girl';
+    case 3
+        origin = 'ana';
+        destination = 'girl';
+    case 4
+        origin = 'nilai';
+        destination = 'girl';
+    case 5
+        origin = 'lena';
+        destination = 'ana';
+    case 6
+        origin = 'lena';
+        destination = 'nilai';
+    case 7
+        origin = 'ana';
+        destination = 'nilai';
+    case 8
+        origin = 'nilai';
+        destination = 'ana';       
+end
+
+    src = double(imread(strcat(origin,'.png')));
+    dst = double(imread(strcat(destination,'.png')));
 
     %masks to exchange: Eyes
-    mask_src1=logical(imread('mask_src_eyes.png'));
-    mask_dst1=logical(imread('mask_dst_eyes.png'));
+    mask_src1 = logical(imread(strcat('mask_',origin,'_eyes.png')));
+    mask_dst1 = logical(imread(strcat('mask_',destination,'_eyes.png')));
 
     %masks to exchange: Mouth
-    mask_src2=logical(imread('mask_src_mouth.png'));
-    mask_dst2=logical(imread('mask_dst_mouth.png'));
-elseif indexPhoto ==2% <- works!
-    dst = double(imread('girl.png'));
-    src = double(imread('lena.png')); % flipped girl, because of the eyes
+    mask_src2 = logical(imread(strcat('mask_',origin,'_mouth.png')));
+    mask_dst2 = logical(imread(strcat('mask_',destination,'_mouth.png')));
+   
 
-    %masks to exchange: Eyes
-    mask_src1=logical(imread('mask_dst_eyes.png'));
-    mask_dst1=logical(imread('mask_src_eyes.png'));
-
-    %masks to exchange: Mouth
-    mask_src2=logical(imread('mask_dst_mouth.png'));
-    mask_dst2=logical(imread('mask_src_mouth.png'));
-elseif indexPhoto ==3% <- hay un problema con la mascara (parece),
-    dst = double(imread('lena.png'));
-    src = double(imread('ana.png')); % flipped girl, because of the eyes
-
-    %masks to exchange: Eyes
-    %mask_src1=logical(imread('mask_src_eyes.png'));
-    mask_dst1=logical(imread('mask_dst_eyes.png'));
-
-    %masks to exchange: Mouth
-    %mask_src2=logical(imread('mask_src_mouth.png'));
-    mask_dst2=logical(imread('mask_dst_mouth.png'));
-    
-    %%generate masks
-    [a,b] =size(src);
-    aux1 = zeros(a, b);
-    aux1(256:351, 163:421) = 1;
-    mask_src1 = logical(aux1);
-
-    aux2 = zeros(a, b);
-    aux2(417:479, 231:348) = 1;
-    mask_src2 = logical(aux2);
-elseif indexPhoto ==10% <- works!
+elseif indexPhoto ==10
     dst = double(imread('hojas.png'));
     src = double(imread('mariquita.png'));
     aux1 = zeros(256,256);
@@ -67,8 +64,8 @@ elseif indexPhoto ==10% <- works!
     aux1(80:230, 80:150) = 1;
     mask_src1 = logical(aux1);
     mask_src1;
-else % indexPhoto==11 <- works!
-    % 
+    
+else % indexPhoto==11
     dst = double(imread('background1.png'));
     src = double(imread('toinsert1.png'));
     
