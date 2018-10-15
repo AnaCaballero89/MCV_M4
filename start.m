@@ -12,34 +12,34 @@ clearvars;
 % 9 ladybug on leaves
 % 10 duck and cascade
 
-indexPhoto = 1;
+indexPhoto =9;
 if indexPhoto < 9
-switch(indexPhoto) %choose name files for each index
-    case 1
-        origin = 'girl';
-        destination = 'lena';
-    case 2
-        origin = 'lena';
-        destination = 'girl';
-    case 3
-        origin = 'ana';
-        destination = 'girl';
-    case 4
-        origin = 'nilai';
-        destination = 'girl';
-    case 5
-        origin = 'lena';
-        destination = 'ana';
-    case 6
-        origin = 'lena';
-        destination = 'nilai';
-    case 7
-        origin = 'ana';
-        destination = 'nilai';
-    case 8
-        origin = 'nilai';
-        destination = 'ana';       
-end
+    switch(indexPhoto) %choose name files for each index
+        case 1
+            origin = 'girl';
+            destination = 'lena';
+        case 2
+            origin = 'lena';
+            destination = 'girl';
+        case 3
+            origin = 'ana';
+            destination = 'girl';
+        case 4
+            origin = 'nilai';
+            destination = 'girl';
+        case 5
+            origin = 'lena';
+            destination = 'ana';
+        case 6
+            origin = 'lena';
+            destination = 'nilai';
+        case 7
+            origin = 'ana';
+            destination = 'nilai';
+        case 8
+            origin = 'nilai';
+            destination = 'ana';       
+    end
 
     src = double(imread(strcat(origin,'.png')));
     dst = double(imread(strcat(destination,'.png')));
@@ -51,21 +51,22 @@ end
     %masks to exchange: Mouth
     mask_src2 = logical(imread(strcat('mask_',origin,'_mouth.png')));
     mask_dst2 = logical(imread(strcat('mask_',destination,'_mouth.png')));
-   
 
-elseif indexPhoto ==10
+
+elseif indexPhoto ==9
     dst = double(imread('hojas.png'));
-    src = double(imread('mariquita.png'));
+    src = double(imrotate(imread('mariquita.png'),90));
+    % background
     aux1 = zeros(256,256);
-    aux1(80:230, 80:150) = 1;
+    aux1(150:218, 100:245) = 1;
     mask_dst1 = logical(aux1);
-    
+    % ladybug 
     aux1 = zeros(256,256);
-    aux1(80:230, 80:150) = 1;
+    aux1(110:178, 85:230) = 1;
     mask_src1 = logical(aux1);
     mask_src1;
     
-else % indexPhoto==11
+else % indexPhoto==10
     dst = double(imread('background1.png'));
     src = double(imread('toinsert1.png'));
     
@@ -86,7 +87,7 @@ param.hj=1;
 
 %Preallocate
 dst1= src;
-if indexPhoto <10 
+if indexPhoto <9 
     for nC = 1: nChannels
 
         %TO DO: COMPLETE the ??
