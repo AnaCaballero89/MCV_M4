@@ -1,4 +1,4 @@
-function [u] = G5_Poisson_Equation_Axb(f, dom2Inp,param)
+function [u] = G5_Poisson_Equation_Axb(f, dom2Inp, param)%, driving)
 
 %this code is not intended to be efficient. 
 
@@ -158,7 +158,7 @@ for j=2:nj+1
             
             % RIGHT
             idx_Ai(idx) = p ; 
-            idx_Aj(idx) = p + (ni +2);
+            idx_Aj(idx) = p + (ni+2);
             a_ij(idx) = 1;
             idx=idx+1;
             
@@ -169,7 +169,6 @@ for j=2:nj+1
             a_ij(idx) = 1;
             idx=idx+1;
             
-            %b(p) = 0;
             
             if (isfield(param, 'driving'))
                 b(p) = param.driving(i-1,j-1);

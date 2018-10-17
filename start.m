@@ -12,7 +12,7 @@ clearvars;
 % 9 ladybug on leaves
 % 10 duck and cascade
 % 11 castle halloween pumpkins
-indexPhoto =11;
+indexPhoto = 10;
 if indexPhoto < 9
     switch(indexPhoto) %choose name files for each index
         case 1
@@ -53,7 +53,7 @@ if indexPhoto < 9
     mask_dst2 = logical(imread(strcat('mask_',destination,'_mouth.png')));
 
 
-elseif indexPhoto ==9
+elseif indexPhoto == 9
     dst = double(imread('hojas.png'));
     src = double(imrotate(imread('mariquita.png'),90));
     % background
@@ -66,19 +66,19 @@ elseif indexPhoto ==9
     mask_src1 = logical(aux1);
     mask_src1;
     
-elseif indexPhoto==10
+elseif indexPhoto == 10
     dst = double(imread('background1.png'));
     src = double(imread('toinsert1.png'));
     
     aux1 = zeros(256,256);
-    aux1(188:256, 1:96) = 1;
+    aux1(188:255, 2:96) = 1;
     mask_dst1 = logical(aux1);
     % duck 
     aux1 = zeros(256,256);
-    aux1(45:113, 105:200) = 1;
+    aux1(45:112, 106:200) = 1;
     mask_src1 = logical(aux1);
     mask_src1;
-else% indexPhoto==11
+else% indexPhoto == 11
     dst = double(imread('background2.png'));
     src = double(imread('toinsert2.png'));
     
@@ -98,65 +98,109 @@ param.hi=1;
 param.hj=1;
 
 %Preallocate
-dst1= src;
-dst2= dst1;
+dst1 = src;
+dst2 = src;
 
-if indexPhoto <9 
+laplacian_dst = zeros(ni,nj);
+laplacian_on_dst = zeros(ni,nj);
+driving = zeros(ni,nj);
+mask_driving = zeros(ni,nj);
+
+if indexPhoto < 9 
+% substitute eyes
     for nC = 1: nChannels
 
-        %TO DO: COMPLETE the ??
-        drivingGrad_i = G5_DiBwd(G5_DiFwd(src(:,:,nC),param.hi)); %??
-        drivingGrad_j = G5_DjBwd(G5_DjFwd(src(:,:,nC),param.hj)); %??
+        drivingGrad_i = G5_DiFwd(src(:,:,nC),param.hi) - G5_DiBwd(src(:,:,nC),param.hi); %
+        drivingGrad_j = G5_DjFwd(src(:,:,nC),param.hj) - G5_DjBwd(src(:,:,nC),param.hj); %
 
-        driving_on_src = drivingGrad_i + drivingGrad_j; %??
+        driving_on_src = drivingGrad_i + drivingGrad_j; %
 
         driving_on_dst = zeros(size(src(:,:,1)));   
-        driving_on_dst(mask_dst1(:)) = driving_on_src(mask_src1(:));
+        driving_on_dst(mask_dst1) = driving_on_src(mask_src1);
+        
+        drivingGrad_i = G5_DiFwd(dst(:,:,nC),param.hi) - G5_DiBwd(dst(:,:,nC),param.hi); %
+        drivingGrad_j = G5_DjFwd(dst(:,:,nC),param.hj) - G5_DjBwd(dst(:,:,nC),param.hj); %
 
-        param.driving = driving_on_dst;
+        driving_dst1 = drivingGrad_i + drivingGrad_j; %
+        
+        driving_dst = zeros(size(dst(:,:,1)));   
+        driving_dst(mask_dst1) = driving_dst1(mask_dst1);
+
+        param.driving = (driving_on_dst + driving_dst)./2;
 
         dst1(:,:,nC) = G5_Poisson_Equation_Axb(dst(:,:,nC), mask_dst1,  param);
         dst2(:,:,nC) = G5_Poisson_Equation_GaussSeidel(dst1(:,:,nC), mask_dst1,  param);
-
     end
 
-
+% substitute mouth
     for nC = 1: nChannels
 
-        %TO DO: COMPLETE the ??
-        drivingGrad_i = G5_DiBwd(G5_DiFwd(src(:,:,nC),param.hi)); %??
-        drivingGrad_j = G5_DjBwd(G5_DjFwd(src(:,:,nC),param.hj)); %??
+        drivingGrad_i = G5_DiFwd(src(:,:,nC),param.hi) - G5_DiBwd(src(:,:,nC),param.hi); %
+        drivingGrad_j = G5_DjFwd(src(:,:,nC),param.hj) - G5_DjBwd(src(:,:,nC),param.hj); %
 
-        driving_on_src = drivingGrad_i + drivingGrad_j; %??
+        driving_on_src = drivingGrad_i + drivingGrad_j; %
 
-        driving_on_dst = zeros(size(src(:,:,1)));  
-        driving_on_dst(mask_dst2(:)) = driving_on_src(mask_src2(:));
+        driving_on_dst = zeros(size(src(:,:,1)));   
+        driving_on_dst(mask_dst2) = driving_on_src(mask_src2);
+        
+        drivingGrad_i = G5_DiFwd(dst(:,:,nC),param.hi) - G5_DiBwd(dst(:,:,nC),param.hi); %
+        drivingGrad_j = G5_DjFwd(dst(:,:,nC),param.hj) - G5_DjBwd(dst(:,:,nC),param.hj); %
 
-        param.driving = driving_on_dst;
+        driving_dst1 = drivingGrad_i + drivingGrad_j; %
+        
+        driving_dst = zeros(size(dst(:,:,1)));   
+        driving_dst(mask_dst2) = driving_dst1(mask_dst2);
+
+        param.driving = (driving_on_dst + driving_dst)./2;
 
         dst1(:,:,nC) = G5_Poisson_Equation_Axb(dst1(:,:,nC), mask_dst2,  param);
-        dst2(:,:,nC) =G5_Poisson_Equation_GaussSeidel(dst1(:,:,nC), mask_dst2,  param);
+        dst2(:,:,nC) = G5_Poisson_Equation_GaussSeidel(dst1(:,:,nC), mask_dst2,  param);
     end
+    
 else
     for nC = 1: nChannels
-        %TO DO: COMPLETE the ??
-        drivingGrad_i = G5_DiBwd(G5_DiFwd(src(:,:,nC),param.hi)); %??
-        drivingGrad_j = G5_DjBwd(G5_DjFwd(src(:,:,nC),param.hj)); %??
 
-        driving_on_src = drivingGrad_i + drivingGrad_j; %??
+        drivingGrad_i = G5_DiFwd(src(:,:,nC),param.hi) - G5_DiBwd(src(:,:,nC),param.hi); %
+        drivingGrad_j = G5_DjFwd(src(:,:,nC),param.hj) - G5_DjBwd(src(:,:,nC),param.hj); %
+
+        driving_on_src = drivingGrad_i + drivingGrad_j; %
 
         driving_on_dst = zeros(size(src(:,:,1)));   
-        driving_on_dst(mask_dst1(:)) = driving_on_src(mask_src1(:));
+        driving_on_dst(mask_dst1) = driving_on_src(mask_src1);
+        
+        drivingGrad_i = G5_DiFwd(dst(:,:,nC),param.hi) - G5_DiBwd(dst(:,:,nC),param.hi); %
+        drivingGrad_j = G5_DjFwd(dst(:,:,nC),param.hj) - G5_DjBwd(dst(:,:,nC),param.hj); %
 
-        param.driving = driving_on_dst;
+        driving_dst1 = drivingGrad_i + drivingGrad_j; %
+        
+        driving_dst = zeros(size(dst(:,:,1)));   
+        driving_dst(mask_dst1) = driving_dst1(mask_dst1);
+        
+%         param.driving = driving_on_dst;
+        param.driving = (driving_on_dst + driving_dst)./2;
+        
+%         for i = 2:ni-1
+%             for j = 2:nj-1
+%                 if mask_dst1(i,j)
+%                     laplacian_on_dst(i,j) = driving_on_dst(i-1,j) + driving_on_dst(i+1,j) + driving_on_dst(i,j-1) + driving_on_dst(i,j+1) - 4*driving_on_dst(i,j);
+%                     laplacian_dst(i,j) = driving_dst(i-1,j) + driving_dst(i+1,j) + driving_dst(i,j-1) + driving_dst(i,j+1) - 4*driving_dst(i,j);
+%                     if laplacian_on_dst(i,j) < laplacian_dst(i,j)
+%                         driving(i,j) = laplacian_dst(i,j);
+%                         mask_driving(i,j) = 1;
+%                     end
+%                 end
+%             end
+%         end
 
-        dst1(:,:,nC) = G5_Poisson_Equation_Axb(dst(:,:,nC), mask_dst1,  param);
-        dst2(:,:,nC) = G5_Poisson_Equation_GaussSeidel(dst1(:,:,nC), mask_dst1,  param);
+%         param.driving = driving;        
+%         param.driving = (laplacian_on_dst + laplacian_dst)./2;
+
+        dst1(:,:,nC) = G5_Poisson_Equation_Axb(dst(:,:,nC), mask_driving,  param);
+        dst2(:,:,nC) = G5_Poisson_Equation_GaussSeidel(dst1(:,:,nC), mask_driving,  param);
     end
 end
 
-% dst1= PoissonEquation
-% dst2= Gauss-Seindel
-figure;imshow(dst1/256)
-figure;imshow(dst2/256)
+figure, imshow(dst1/256)
+figure, imshow(dst2/256)
+
 
