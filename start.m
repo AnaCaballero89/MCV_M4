@@ -99,6 +99,8 @@ param.hj=1;
 
 %Preallocate
 dst1= src;
+dst2= dst1;
+
 if indexPhoto <9 
     for nC = 1: nChannels
 
@@ -114,6 +116,8 @@ if indexPhoto <9
         param.driving = driving_on_dst;
 
         dst1(:,:,nC) = G5_Poisson_Equation_Axb(dst(:,:,nC), mask_dst1,  param);
+        dst2(:,:,nC) = G5_Poisson_Equation_GaussSeidel(dst1(:,:,nC), mask_dst1,  param);
+
     end
 
 
@@ -131,6 +135,7 @@ if indexPhoto <9
         param.driving = driving_on_dst;
 
         dst1(:,:,nC) = G5_Poisson_Equation_Axb(dst1(:,:,nC), mask_dst2,  param);
+        dst2(:,:,nC) =G5_Poisson_Equation_GaussSeidel(dst1(:,:,nC), mask_dst2,  param);
     end
 else
     for nC = 1: nChannels
@@ -146,8 +151,9 @@ else
         param.driving = driving_on_dst;
 
         dst1(:,:,nC) = G5_Poisson_Equation_Axb(dst(:,:,nC), mask_dst1,  param);
+        dst2(:,:,nC) = G5_Poisson_Equation_GaussSeidel(dst1(:,:,nC), mask_dst1,  param);
     end
 end
-imshow(dst1/256)
-
+figure;imshow(dst1/256)
+figure;imshow(dst2/256)
 
