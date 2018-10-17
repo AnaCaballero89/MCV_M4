@@ -154,6 +154,9 @@ else
         dst2(:,:,nC) = G5_Poisson_Equation_GaussSeidel(dst1(:,:,nC), mask_dst1,  param);
     end
 end
+
+% dst1= PoissonEquation
+% dst2= Gauss-Seindel
 figure;imshow(dst1/256)
 figure;imshow(dst2/256)
 
