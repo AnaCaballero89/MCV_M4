@@ -1,5 +1,7 @@
 "# MCV_M2" 
 TASKS TO DO:
+
+
 === MANDATORY
 
 A. Implement the Chan-Vese algorithm and test it with the given
@@ -7,6 +9,7 @@ images.
 B. I Video showing the curve evolution.
 C. I To discover under which assumptions Chan-Vese works and
 when it does not.
+
 
 === optional
 O1: Test with your own real images. Up to +1 point.
