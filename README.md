@@ -12,6 +12,7 @@ when it does not.
 
 
 === optional
+
 O1: Test with your own real images. Up to +1 point.
 
 02: Implement the Chambolle’s convexification for the Chan-Vese
