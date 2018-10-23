@@ -37,5 +37,7 @@ Formulation of Total Variation Minimization”. Up to +5 points.
 
 
 link to skides
+
 Week 2: https://drive.google.com/open?id=1bZnuo0bcyPTcLcgshagm7rrB7Z_rxZ6dT_dPHoRoAm0
+
 Week 3:
