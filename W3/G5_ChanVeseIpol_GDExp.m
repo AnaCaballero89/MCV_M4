@@ -1,4 +1,4 @@
-function [ phi ] = sol_ChanVeseIpol_GDExp( I, phi_0, mu, nu, eta, lambda1, lambda2, tol, epHeaviside, dt, iterMax, reIni )
+function [ phi ] = G5_ChanVeseIpol_GDExp( I, phi_0, mu, nu, eta, lambda1, lambda2, tol, epHeaviside, dt, iterMax, reIni )
 %Implementation of the Chan-Vese segmentation following the explicit
 %gradient descent in the paper of Pascal Getreur "Chan-Vese Segmentation".
 %It is the equation 19 from that paper
@@ -72,7 +72,7 @@ while dif>tol && nIter<iterMax
     %%Equation 22, for inner points
     %phi(??) = ??; %TODO 15: Line to complete
     % === eq 22
-    % === phi to be solved by one Gauss–Seidel swee
+    % === phi to be solved by one Gaussâ€“Seidel swee
     
     numerator = (phi(2:end-1,2:end-1) + dt * delta_phi(2:end-1,2:end-1) .* ...
             (A(2:end-1,2:end-1) .* phi(3:end,2:end-1) + A(1:end-2,2:end-1) .* phi(1:end-2,2:end-1) + ...
