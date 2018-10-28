@@ -34,11 +34,11 @@ lambda2=1;
 
 epHeaviside=1;
 %eta=0.01;
-eta=1
+eta=1;
 tol=0.1;
 %dt=(10^-2)/mu; 
 dt=(10^-1)/mu;
-iterMax=100000
+iterMax=100000;
 %reIni=0; %Try both of them
 %reIni=500;
 reIni=100;
@@ -63,5 +63,5 @@ phi_0=phi_0-1;
 
 
 %%Explicit Gradient Descent
-seg=sol_ChanVeseIpol_GDExp( I, phi_0, mu, nu, eta, lambda1, lambda2, tol, epHeaviside, dt, iterMax, reIni );
+seg=G5_ChanVeseIpol_GDExp( I, phi_0, mu, nu, eta, lambda1, lambda2, tol, epHeaviside, dt, iterMax, reIni );
 
