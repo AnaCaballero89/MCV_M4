@@ -5,7 +5,7 @@ TASKS TO DO:
 === MANDATORY
 
 A. Implement the Chan-Vese algorithm and test it with the given
-images. -> Done
+images. -> Done, for the default image
 
 B. Video showing the curve evolution. -> Falta guardar video
 
