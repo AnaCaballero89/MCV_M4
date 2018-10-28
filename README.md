@@ -5,12 +5,12 @@ TASKS TO DO:
 === MANDATORY
 
 A. Implement the Chan-Vese algorithm and test it with the given
-images.
+images. -> Done
 
-B. I Video showing the curve evolution.
+B. Video showing the curve evolution. -> Falta guardar video
 
-C. I To discover under which assumptions Chan-Vese works and
-when it does not.
+C. To discover under which assumptions Chan-Vese works and
+when it does not. -> TODO
 
 
 === optional
