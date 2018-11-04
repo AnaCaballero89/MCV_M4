@@ -17,6 +17,9 @@ when it does not.
 
 O1: Test with your own real images. Up to +1 point.
 
+(Te he robado una del facebook, de un cielo)
+
+
 02: Implement the Chambolle’s convexification for the Chan-Vese
 energy functional. Up to +5 points.
 
