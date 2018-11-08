@@ -32,6 +32,10 @@ while dif>tol && nIter<iterMax
     %Fixed phi, Minimization w.r.t c1 and c2 (constant estimation)
     % === eq 10 & 11 IPOL_Getreuer_2012.pdf
     % === the optimal values of c1 and c2 are the region averages
+%     HsubE = 1/2*(1+(2/pi)*atan(phi./epHeaviside));
+%     c1 = sum(I.*HsubE)/sum(HsubE); %TODO 1: Line to complete
+%     c2 = sum(I.*HsubE)/sum(HsubE); %TODO 2: Line to complete
+
     c1 = sum((phi(:) >= 0) .* I(:))/sum(phi(:) >= 0); %TODO 1: Line to complete
     c2 = sum((phi(:) <  0) .* I(:))/sum(phi(:) <  0); %TODO 2: Line to complete
     
@@ -119,7 +123,7 @@ while dif>tol && nIter<iterMax
         imagesc(I);        
         colormap gray;
         hold on;
-        contour(phi(2:end-1,2:end-1)) %TODO 18: Line to complete
+        contour(phi(2:end-1,2:end-1),1,'r') %TODO 18: Line to complete
         title('Image and zero level set of Phi')
 
         axis off;

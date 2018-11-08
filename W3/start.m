@@ -2,12 +2,13 @@
 clearvars;
 clc
 
-%I=double(imread('zigzag_mask.png'));
+% I=double(imread('zigzag_mask.png'));
 %I=mean(I,3); %To 2D matrix
 I=double(imread('circles.png'));
 %I=double(imread('noisedCircles.tif'));
-%I=double(imread('phantom17.bmp'));
-%I=double(imread('phantom18.bmp'));
+% I=double(imread('phantom17.bmp'));
+% I=double(imread('phantom18.bmp'));
+% I=double(imread('phantom19.bmp'));
 I=mean(I,3);
 I=I-min(I(:));
 I=I/max(I(:));
@@ -22,7 +23,7 @@ I=I/max(I(:));
 %phantom17 mu=1, mu=2, mu=10
 %phantom18 mu=0.2 mu=0.5
 %hola carola mu=1
-mu=1;
+mu=0.5;
 nu=0;
 
 
@@ -48,7 +49,7 @@ reIni=100;
 phi_0=(-sqrt( ( X-round(ni/2)).^2 + (Y-round(nj/2)).^2)+50);
 
 %%% This initialization allows a faster convergence for phantom 18
-%phi_0=(-sqrt( ( X-round(ni/2)).^2 + (Y-round(nj/4)).^2)+50);
+% phi_0=(-sqrt( ( X-round(ni/2)).^2 + (Y-round(nj/4)).^2)+50);
 %Normalization of the initial phi to [-1 1]
 %phi_0=phi_0-min(phi_0(:));
 %phi_0=2*phi_0/max(phi_0(:));
