@@ -2,20 +2,23 @@
 TASKS TO DO:
 
 
-=== MANDATORY
+=== MANDATORY -> done (see slides)
 
 A. Implement the Chan-Vese algorithm and test it with the given
-images. -> Done, for the default image
+images. 
 
-B. Video showing the curve evolution. -> Falta guardar video
+B. Video showing the curve evolution. 
 
 C. To discover under which assumptions Chan-Vese works and
-when it does not. -> TODO
+when it does not. 
 
 
 === optional
 
 O1: Test with your own real images. Up to +1 point.
+
+(Te he robado una del facebook, de un cielo)
+
 
 02: Implement the Chambolle’s convexification for the Chan-Vese
 energy functional. Up to +5 points.
@@ -42,4 +45,4 @@ link to skides
 
 Week 2: https://drive.google.com/open?id=1bZnuo0bcyPTcLcgshagm7rrB7Z_rxZ6dT_dPHoRoAm0
 
-Week 3:
+Week 3: https://docs.google.com/presentation/d/1lqjy4tu__d4v0_3HIN_o2o2wUZYLAMa0Ecc_gzJZ9o0
