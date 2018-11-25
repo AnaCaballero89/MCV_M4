@@ -1,0 +1,14 @@
+name: exercise2
+channels:
+  - defaults
+dependencies:
+  - blas=1.0
+  - cycler=0.10.0
+  - jpeg=9b
+  - xlrd=1.1.0
+  - zlib=1.2.11
+  - pip:
+    - ad3==2.2.1
+    - matplotlib
+    - pystruct==0.3.2
+prefix: C:\Users\nokutu\Anaconda3\envs\exercise2

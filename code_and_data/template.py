@@ -87,13 +87,18 @@ print('X, Y done')
 if add_gaussian_noise_to_features:
     print('Noise sigma {}'.format(sigma_noise))
     X = X + np.random.normal(0.0, sigma_noise, size=X.size).reshape(np.shape(X))
-      
+
+""" Set data train and test """
+X_train, X_test = 
+y_train, y_test = 
 
 """
 DEFINE HERE YOUR GRAPHICAL MODEL AND CHOOSE ONE LEARNING METHOD
 (OneSlackSSVM, NSlackSSVM, FrankWolfeSSVM)
-"""      
-    
+""" 
+model = ChainCRF()
+ssvm = FrankWolfeSSVM(model=model, C=1000, max_iter=11)
+ssvm.fit(X_train, y_train)
 
 """ 
 Compare SVM with S-SVM doing k-fold cross validation, k=5, see scikit-learn.org 
