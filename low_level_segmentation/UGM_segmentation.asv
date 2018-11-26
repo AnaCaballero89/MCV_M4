@@ -35,14 +35,12 @@ NumCols = size(im,2);
 % define the unary energy term: data_term
 % nodePot = P( color at pixel 'x' | Cluster color 'c' )
 im=double(im);
-x=reshape(im,[size(im,1)*size(im,2) size(im,3)]);
-gmm_color = gmdistribution.fit(x ,K);
+x=reshape(im,[size(im,1)*size(im,2),size(im,3)]);
+gmm_color = gmdistribution.fit(x,K);
 mu_color=gmm_color.mu;
 
-data_term = gmm_color.posterior(x);
-nodePot = data_term;
-% [~,c] = max(nodePot,[],2);
-
+nodePot = gmm_color.posterior(x);
+[~,c] = max(nodePot,[],2);
 
 
 %Building 4-grid
@@ -50,7 +48,7 @@ nodePot = data_term;
 disp('create UGM model');
 
 % Create UGM data
-[edgePot,edgeStruct] = CreateGridUGMModel(NumFils, NumCols, K ,smooth_term);
+[edgePot,edgeStruct] = CreateGridUGMModel(NumFils, NumCols, K ,smooth_term, im);
 
 
 if ~isempty(edgePot)
@@ -74,10 +72,10 @@ if ~isempty(edgePot)
     % apply other inference algorithms and compare their performance
     %
      % - Graph Cut
-%     display('Graph Cut'); tic;
-%     decodeGP = UGM_Decode_GraphCut(nodePot, edgePot, edgeStruct);
-%     im_gp= reshape(mu_color(decodeGP,:),size(im));
-%     toc;
+    display('Graph Cut'); tic;
+    decodeGP = UGM_Decode_GraphCut(nodePot, edgePot, edgeStruct);
+    im_gp= reshape(mu_color(decodeGP,:),size(im));
+    toc;
     
     % - Linear Programing Relaxation
     display('Linear Programing Relaxation'); tic;

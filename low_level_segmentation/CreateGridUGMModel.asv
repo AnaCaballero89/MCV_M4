@@ -1,4 +1,4 @@
-function [edgePot,edgeStruct]=CreateGridUGMModel(NumFils, NumCols, K, lambda)
+function [edgePot,edgeStruct]=CreateGridUGMModel(NumFils, NumCols, K, lambda, im)
 %
 %
 % NumFils, NumCols: image dimension
@@ -7,6 +7,8 @@ function [edgePot,edgeStruct]=CreateGridUGMModel(NumFils, NumCols, K, lambda)
 
 tic
 
+edgePot=[];
+edgeStruct=[];
 nNodes = NumFils*NumCols;
 nStates = K;
 
@@ -29,12 +31,6 @@ adj = adj+adj';
 edgeStruct = UGM_makeEdgeStruct(adj,nStates);
 
 
-edgePot = zeros(nStates, nStates, edgeStruct.nEdges);
-for e = 1:edgeStruct.nEdges
-    pot_same = exp(lambda(1) + lambda(2)*1);
-    m = ones([nStates, nStates]);
-    m(1:1+size(m,1):end) = pot_same;
-    edgePot(:,:,e) = m;
-end
+edgePot = zeros(nSatates, 
 
 toc;
