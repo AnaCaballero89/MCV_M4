@@ -7,6 +7,7 @@ Created on Fri Sep  4 20:15:45 2015
 import os
 import matplotlib.pyplot as plt
 import numpy as np
+import cv2 as cv
 
 from pandas import ExcelFile
 
@@ -22,7 +23,7 @@ num_segments_per_jacket = 40
 add_gaussian_noise_to_features = False
 sigma_noise = 0.1
 plot_labeling = False
-plot_coefficients = False
+plot_coefficients = True
 
 
 """ 
@@ -70,10 +71,9 @@ X = np.zeros((num_jackets, num_segments_per_jacket, num_features))
 for jacket_segments, i in zip(segments, range(num_jackets)):
     for s, j in zip(jacket_segments, range(num_segments_per_jacket)):
         """ set the features """
-        X[i,j,0:num_features] = \
-           s.x0norm, s.y0norm, s.x1norm, s.y1norm, \
-           (s.x0norm+s.x1norm)/2., (s.y0norm+s.y1norm)/2., \
-           s.angle/(2*np.pi)
+        X[i,j,0:num_features] = s.x0norm, s.y0norm, s.x1norm, s.y1norm, \
+                                (s.x0norm+s.x1norm)/2., (s.y0norm+s.y1norm)/2., \
+                                s.angle/(2*np.pi)
         """ all possible features at present, see segment.py """
         # s.x0, s.y0, s.x1, s.y1, \
         # s.x0norm, s.y0norm, s.x1norm, s.y1norm, \
@@ -88,16 +88,23 @@ if add_gaussian_noise_to_features:
     print('Noise sigma {}'.format(sigma_noise))
     X = X + np.random.normal(0.0, sigma_noise, size=X.size).reshape(np.shape(X))
 
-""" Set data train and test """
-X_train, X_test = X[n_folds == 1], X[n_folds != 1]
-Y_train, Y_test = Y[n_folds == 1], Y[n_folds != 1]
-
 """
 DEFINE HERE YOUR GRAPHICAL MODEL AND CHOOSE ONE LEARNING METHOD
 (OneSlackSSVM, NSlackSSVM, FrankWolfeSSVM)
 """ 
-model = ChainCRF()
-ssvm = FrankWolfeSSVM(model=model, C=1000, max_iter=11)
+svm = LinearSVC(dual=False, C=.1)
+
+model = ChainCRF(n_features=num_features, n_states=num_labels, inference_method='ad3', directed=True)
+graph_model = 'FrankWolfe' # 'OneSlack', 'NSlack', 'FrankWolfe'
+if graph_model == 'OneSlack':
+    ssvm = OneSlackSSVM(model=model, C=10000, max_iter=30, tol=0.01)
+elif graph_model == 'NSlack':
+    ssvm = NSlackSSVM(model=model, C=10000, max_iter=30, tol=0.01)
+elif graph_model == 'FrankWolfe':
+    ssvm = FrankWolfeSSVM(model=model, C=10000, max_iter=30, tol=0.01)
+else:
+    assert False, "graph_model is not correct"
+print( 'C=10000, max_iter=30, tol=0.01')
 
 """ 
 Compare SVM with S-SVM doing k-fold cross validation, k=5, see scikit-learn.org 
@@ -112,7 +119,7 @@ wrong_segments_svm = []
 
 kf = KFold(n_splits=n_folds)
 fold = 0
-for train_index, test_index in kf: 
+for train_index, test_index in kf.split(X): 
     print(' ')
     print('train index {}'.format(train_index))
     print('test index {}'.format(test_index))
@@ -122,14 +129,19 @@ for train_index, test_index in kf:
     Y_train = Y[train_index]
     X_test = X[test_index]
     Y_test = Y[test_index]
-                             
+    
     """ YOUR S-SVM TRAINING CODE HERE """
     ssvm.fit(X_train, Y_train)
-    
-    
+
     """ LABEL THE TESTING SET AND PRINT RESULTS """
-    print("Test score with chain CRF: %f" % ssvm.score(X_test, Y_test))
-    
+    scores_crf[fold] = ssvm.score(X_test, Y_test)
+    print("Test score with chain CRF: %f" % scores_crf[fold])
+
+    Y_pred = ssvm.predict(X_test)
+
+    wrong_in_fold_crf = np.sum(np.ravel(Y_pred) - np.ravel(Y_test) != 0)
+    wrong_segments_crf.append(wrong_in_fold_crf)
+
     """ figure showing the result of classification of segments for
     each jacket in the testing part of present fold """
     if plot_labeling:
@@ -142,10 +154,16 @@ for train_index, test_index in kf:
 
 
     """ YOUR LINEAR SVM TRAINING CODE HERE """
-
+    svm.fit(np.vstack(X_train),np.hstack(Y_train))
 
     """ LABEL THE TESTING SET AND PRINT RESULTS """
-
+    scores_svm[fold] = svm.score(np.vstack(X_test),np.hstack(Y_test))
+    print("Test score with linear SVM: %f" % scores_svm[fold])
+    
+    Y_pred = svm.predict(np.vstack(X_test))
+    
+    wrong_in_fold_svm = np.sum(np.ravel(Y_pred) - np.ravel(Y_test) != 0)
+    wrong_segments_svm.append(wrong_in_fold_svm)
 
     fold += 1
     
@@ -188,13 +206,30 @@ if plot_coefficients:
         'right shoulder',
     ]
 
+
     """ SHOW IMAGE OF THE LEARNED UNARY COEFFICIENTS, size (num_labels, num_features)"""
     """ use matshow() and colorbar()"""
-    
+    w = ssvm.w[:num_labels*num_features].reshape((num_labels,num_features))
+    plt.matshow(w)
+    plt.yticks(np.arange(num_labels), name_of_labels)
+    plt.xticks(np.arange(num_features) + 0.5, ['x0norm', 'y0norm', 'x1norm', 'y1norm', \
+                                              '(x0+x1)/2', '(y0+y1)/2', \
+                                              'angle'], rotation=45)
+    plt.show()
+
     
     
     """ SHOW IMAGE OF PAIRWISE COEFFICIENTS size (num_labels, num_labels)"""
-
-
+    # plt.matshow(ssvm.w[num_labels*num_features:].reshape(num_labels, num_labels))
+    # plt.xticks(np.arange(num_labels), name_of_labels, rotation=90)
+    # plt.yticks(np.arange(num_labels), name_of_labels)
+    # plt.show()
+    plt.figure()
+    w = ssvm.w[:12*7].reshape((12,7))
+    plt.matshow(ssvm.w[12*7:].reshape(12, 12))
+    plt.title("Transition parameters of the chain CRF")
+    plt.xticks(np.arange(11), range(11))
+    plt.yticks(np.arange(11), name_of_labels)
+    plt.show()
            
-            
+             
