@@ -215,21 +215,14 @@ if plot_coefficients:
     plt.xticks(np.arange(num_features) + 0.5, ['x0norm', 'y0norm', 'x1norm', 'y1norm', \
                                               '(x0+x1)/2', '(y0+y1)/2', \
                                               'angle'], rotation=45)
-    plt.show()
+    
 
     
     
     """ SHOW IMAGE OF PAIRWISE COEFFICIENTS size (num_labels, num_labels)"""
-    # plt.matshow(ssvm.w[num_labels*num_features:].reshape(num_labels, num_labels))
-    # plt.xticks(np.arange(num_labels), name_of_labels, rotation=90)
-    # plt.yticks(np.arange(num_labels), name_of_labels)
-    # plt.show()
-    plt.figure()
-    w = ssvm.w[:12*7].reshape((12,7))
-    plt.matshow(ssvm.w[12*7:].reshape(12, 12))
-    plt.title("Transition parameters of the chain CRF")
-    plt.xticks(np.arange(11), range(11))
-    plt.yticks(np.arange(11), name_of_labels)
+    plt.matshow(ssvm.w[num_labels*num_features:].reshape(num_labels, num_labels))
+    plt.xticks(np.arange(num_labels),  name_of_labels, rotation=90)
+    plt.yticks(np.arange(num_labels), name_of_labels)
     plt.show()
            
              
