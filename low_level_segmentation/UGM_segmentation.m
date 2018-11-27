@@ -2,12 +2,7 @@ clear all;
 close all;
 clc;
 
-im_name='3_12_s.bmp';
-
-
-% basedir='~/Desenvolupament/UGM/';
-% addpath(basedir);
-
+im_name='2_1_s.bmp';
 
 %Set model parameters
 %cluster color
@@ -19,15 +14,8 @@ smooth_term=[0.0 2]; % Potts Model
 %Load images
 im = imread(im_name);
 
-
 NumFils = size(im,1);
 NumCols = size(im,2);
-
-
-%Convert to LAB colors space
-% TODO: Uncomment if you want to work in the LAB space
-%
-% im = RGB2Lab(im);
 
 
 %Preparing data for GMM fiting
@@ -41,8 +29,6 @@ mu_color=gmm_color.mu;
 
 data_term = gmm_color.posterior(x);
 nodePot = data_term;
-% [~,c] = max(nodePot,[],2);
-
 
 
 %Building 4-grid
@@ -52,47 +38,47 @@ disp('create UGM model');
 % Create UGM data
 [edgePot,edgeStruct] = CreateGridUGMModel(NumFils, NumCols, K ,smooth_term);
 
-
 if ~isempty(edgePot)
 
     % color clustering
-    [~,c] = min(reshape(data_term,[NumFils*NumCols K]),[],2);
-    im_c= reshape(mu_color(c,:),size(im));
+    [~,c] = max(reshape(data_term,[NumFils*NumCols K]),[],2);
+    im_c = reshape(mu_color(c,:),size(im))/255;
     
     % Call different UGM inference algorithms
     display('Loopy Belief Propagation'); tic;
     [nodeBelLBP,edgeBelLBP,logZLBP] = UGM_Infer_LBP(nodePot,edgePot,edgeStruct);toc;
-    im_lbp = max(nodeBelLBP,[],2);
+    [~, a] = max(nodeBelLBP,[],2);
+    im_lbp = reshape(mu_color(a,:), size(im))/255;
     
     % Max-sum
     display('Max-sum'); tic;
     decodeLBP = UGM_Decode_LBP(nodePot,edgePot,edgeStruct);
-    im_bp= reshape(mu_color(decodeLBP,:),size(im));
+    im_bp = reshape(mu_color(decodeLBP,:),size(im))/255;
     toc;
     
     
     % apply other inference algorithms and compare their performance
-    %
-     % - Graph Cut
-%     display('Graph Cut'); tic;
-%     decodeGP = UGM_Decode_GraphCut(nodePot, edgePot, edgeStruct);
-%     im_gp= reshape(mu_color(decodeGP,:),size(im));
-%     toc;
-    
-    % - Linear Programing Relaxation
-    display('Linear Programing Relaxation'); tic;
-    decodeLPR = UGM_Decode_LinProg(nodePot, edgePot, edgeStruct);
-    im_lpr= reshape(mu_color(decodeLPR,:),size(im));
+    % MaxOfMarginals
+    disp('Max of Marginals'); tic;
+    decodeMaxOfMarg = UGM_Decode_MaxOfMarginals(nodePot,edgePot,edgeStruct,@UGM_Infer_LBP);
+    im_MaxOfMarg = reshape(mu_color(decodeMaxOfMarg,:), size(im))/255;
     toc;
     
-    figure
-    subplot(2,3,1),imshow(Lab2RGB(im));xlabel('Original');
-    subplot(2,3,2),imshow(Lab2RGB(im_c),[]);xlabel('Clustering without GM');
-    subplot(2,3,3),imshow(Lab2RGB(im_bp),[]);xlabel('Max-Sum');
-    subplot(2,3,4),imshow(Lab2RGB(im_lbp),[]);xlabel('Loopy Belief Propagation');
+    % ICM
+    disp('ICM'); tic;
+    decodeICM = UGM_Decode_ICM(nodePot,edgePot,edgeStruct);
+    im_icm = reshape(mu_color(decodeICM,:), size(im))/255;
+    toc;
+    
 
-    subplot(2,3,5),imshow(Lab2RGB(im_gp),[]);xlabel('Graph Cut');
-    subplot(2,3,6),imshow(Lab2RGB(im_lpr),[]);xlabel('Linear Programing Relaxation');
+    figure
+    subplot(2,3,1),imshow(im/255);xlabel('Original');
+    subplot(2,3,2),imshow(im_c);xlabel('Clustering without GM');
+    subplot(2,3,3),imshow(im_bp);xlabel('Max-Sum');
+    subplot(2,3,4),imshow(im_lbp);xlabel('Loopy Belief Propagation');
+    
+    subplot(2,3,5),imshow(im_MaxOfMarg);xlabel('Max of Marginals');
+    subplot(2,3,6),imshow(im_icm);xlabel('ICM');
     
 else
    

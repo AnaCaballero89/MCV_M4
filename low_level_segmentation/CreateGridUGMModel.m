@@ -32,9 +32,9 @@ edgeStruct = UGM_makeEdgeStruct(adj,nStates);
 edgePot = zeros(nStates, nStates, edgeStruct.nEdges);
 for e = 1:edgeStruct.nEdges
     pot_same = exp(lambda(1) + lambda(2)*1);
-    m = ones([nStates, nStates]);
-    m(1:1+size(m,1):end) = pot_same;
-    edgePot(:,:,e) = m;
+    mat = ones([nStates, nStates]);
+    mat(1:1+size(mat,1):end) = pot_same;
+    edgePot(:,:,e) = mat;
 end
 
 toc;
