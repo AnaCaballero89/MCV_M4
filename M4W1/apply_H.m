@@ -1,4 +1,4 @@
-function output=apply_H (I, H, size_output)
+function Ioutput=apply_H (I, H, size_output)
 
 [rows, cols, channels] = size(I);
 
@@ -48,4 +48,21 @@ y_max = rows;
 end
 
 % falta acabar, aplicar la homografia a la imatge i tornar la imatge transformada
+% homogeneous coordinates
+[X,Y] = meshgrid(xmin:xmax, ymin:ymax);
+Hrow,Hcol =size(X);
+XYZ = [X(:) Y(:) ones(1,Hrow*Hcol)]';
+
+% transform image
+Hapl= H\XYZ;
+HZ = reshape(Hapl(3,:), Hrow, Hcol);
+HX = reshape(Hapl(1,:), Hrow, Hcol)./ HZ;
+HY = reshape(Hapl(2,:), Hrow, Hcol)./ HZ;
+
+Ioutput = zeros(Hrow, Hcol, channels);
+for i=1:channels
+    Ioutput(:,:,i) = interp2(double(I(:,:,c)), HX, HY, '*bilinear');
+end
+
+
 end
