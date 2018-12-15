@@ -23,11 +23,16 @@ I=imread('Data/0005_s.png'); % we have to be in the proper folder
 % --> where theta is the orientation angle; Gloria's cass notes
 s = 0.5;
 theta = 30;
+A = [(s*cosd(theta))  (-s*sind(theta)) ; (s*sind(theta))  (s*cosd(theta))];
 t1 = 5;
 t2 = 10;
 v1 = 0;
 v2 = 0;
-H = [s*cosd(theta), -s*sind(theta), t1 ; s*sind(theta), s*cosd(theta), t2; v1, v2, 1];
+% --> H = [A t ; 0 1]
+% --> A is a non-singular 2 × 2 matrix
+% --> T (t1 and t2) is a translation vector
+% --> 0 (v1 and v2) is a 0 vector
+H =  [A(1,1), A(1,2), t1 ; A(2,1), A(2,2), t2; v1, v2, 1];
 
 
 I2 = apply_H(I, H);
@@ -37,20 +42,58 @@ figure; imshow(I); figure; imshow(uint8(I2));
 %% 1.2. Affinities
 
 % ToDo: generate a matrix H which produces an affine transformation
+A = [0 1; 1 1];
+t1 = 4;
+t2 = 6;
+% --> H = [A t ; 0 1]
+% --> A is a non-singular 2 × 2 matrix
+% --> T (t1 and t2) is a translation vector
+% --> 0 (v1 and v2) is a 0 vector
+H = [A(1,1), A(1,2), t1 ; A(2,1), A(2,2), t2; v1, v2, 1];
 
 I2 = apply_H(I, H);
 figure; imshow(I); figure; imshow(uint8(I2));
 
 % ToDo: decompose the affinity in four transformations: two
 % rotations, a scale, and a translation
+% --> translation
+T = [1 0 t1;0 1 t2; 0 0 1];
+
+% --> rotation
+% --> slide 6 lecture2a.pdf
+[U,D,V] = svd(A);
+Rtheta = U';
+Rphi = V';
+Rtheta = [Rtheta(1,1), Rtheta(1,2), 0 ; Rtheta(2,1), Rtheta(2,2), 0; 0,0,1];
+Rphi = [Rphi(1,1), Rphi(1,2), 0 ; Rphi(2,1), Rphi(2,2), 0; 0,0,1];
+
+% --> scale
+D = [D(1,1), D(1,2), 0 ; D(2,1), D(2,2), 0 ; 0,0,1];
+
+% H--> H decomposition
+H_decomposition = T*(Rtheta*Rphi*D);
 
 % ToDo: verify that the product of the four previous transformations
 % produces the same matrix H as above
+diff = round(H_decomposition)-H;
 
+if (sum(diff(:))) == 0
+    disp('matrices are equal')
+else
+    disp('matrices are not equal')
+end
 % ToDo: verify that the proper sequence of the four previous
 % transformations over the image I produces the same image I2 as before
 
+I2 = apply_H(I, H_decomposition);
+figure; imshow(I); figure; imshow(uint8(I2));
 
+diff = I2-I2_decomposition;
+if diff == 0
+    disp('images are equal')
+else
+    disp('images are not equal')
+end
 
 %% 1.3 Projective transformations (homographies)
 
