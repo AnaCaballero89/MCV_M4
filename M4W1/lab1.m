@@ -117,7 +117,43 @@ end
 
 %% 1.3 Projective transformations (homographies)
 
-% ToDo: generate a matrix H which produces a projective transformation
+
+% ToDo: generate a matrix H which produces a projective transformation,that
+% can be descomposed in a product of 3 matrix, H= Hs*Ha*Hp, where Hs is a
+% similarity transformation, Ha affinity transformation and Hp the
+% projective one.
+
+% First, the Hs similarity transformation, 
+% Remember: Hs=[A t; 0 1], where A is the Rotation Matrix [ cos(theta) -
+% sin(theta); cos(theta) sin(theta)]; and t the translation vector(t1,t2)
+theta = 30;
+s=0.5;
+A = [(s*cosd(theta))  (-s*sind(theta)) ; (s*sind(theta))  (s*cosd(theta))];
+t1 = 5;
+t2 = 10;
+v1 = 0;
+v2 = 0;
+Hs=  [A(1,1), A(1,2), t1 ; A(2,1), A(2,2), t2; v1, v2, 1];
+% Then, the Ha affinity transformation 
+% Remember: Ha=[K t ; 0 1], where K is a non singular 2x2 matrix and T (t1 
+% and t2) is a translation vector 
+K= [0 1; 
+    1 1];
+t1 = 0;
+t2 = 0;
+Ha= [K(1,1),    K(1,2),     t1 ; 
+    K(2,1),     K(2,2),     t2; 
+     0,         0,          1];
+% Finally, we have Hp projective transformation. 
+% Hp=[I 0; v vi], where v is not null 
+Iden=[1 0;
+   0 1];
+v=[0 0];
+vi=1;
+Hp=[Iden [0;0]; v vi];
+
+% Homography as H=Hs*Ha*Hp
+H=Hs*Ha*Hp;
 
 I2 = apply_H(I, H);
 figure; imshow(I); figure; imshow(uint8(I2));
@@ -237,4 +273,81 @@ plot(t, -(lr4(1)*t + lr4(3)) / lr4(2), 'y');
 % Use 5 pairs of orthogonal lines (pages 55-57, Hartley-Zisserman book)
 
 
+% 
+% 
+% % choose the image points
+% I=imread('Data/0000_s.png');
+% A = load('Data/0000_s_info_lines.txt');
+% 
+% % indices of lines
+% i = 424;
+% p1 = [A(i,1) A(i,2) 1]';
+% p2 = [A(i,3) A(i,4) 1]';
+% i = 240;
+% p3 = [A(i,1) A(i,2) 1]';
+% p4 = [A(i,3) A(i,4) 1]';
+% i = 712;
+% p5 = [A(i,1) A(i,2) 1]';
+% p6 = [A(i,3) A(i,4) 1]';
+% i = 565;
+% p7 = [A(i,1) A(i,2) 1]';
+% p8 = [A(i,3) A(i,4) 1]';
+% 
+% % ToDo: compute the lines l1, l2, l3, l4, that pass through the different pairs of points
+% 
+% 
+% % show the chosen lines in the image
+% figure;imshow(I);
+% hold on;
+% t=1:0.1:1000;
+% plot(t, -(l1(1)*t + l1(3)) / l1(2), 'y');
+% plot(t, -(l2(1)*t + l2(3)) / l2(2), 'y');
+% plot(t, -(l3(1)*t + l3(3)) / l3(2), 'y');
+% plot(t, -(l4(1)*t + l4(3)) / l4(2), 'y');
+% 
+% % ToDo: compute the homography that affinely rectifies the image
+% 
+% I2 = apply_H(I, H);
+% figure; imshow(uint8(I2));
+% 
+% % ToDo: compute the transformed lines lr1, lr2, lr3, lr4
+% 
+% % show the transformed lines in the transformed image
+% figure;imshow(uint8(I2));
+% hold on;
+% t=1:0.1:1000;
+% plot(t, -(lr1(1)*t + lr1(3)) / lr1(2), 'y');
+% plot(t, -(lr2(1)*t + lr2(3)) / lr2(2), 'y');
+% plot(t, -(lr3(1)*t + lr3(3)) / lr3(2), 'y');
+% plot(t, -(lr4(1)*t + lr4(3)) / lr4(2), 'y');
+% 
+% % ToDo: to evaluate the results, compute the angle between the different pair 
+% % of lines before and after the image transformation
+% 
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% 3. Metric Rectification
+% 
+% %% 3.1 Metric rectification after the affine rectification (stratified solution)
+% 
+% % ToDo: Metric rectification (after the affine rectification) using two non-parallel orthogonal line pairs
+% %       As evaluation method you can display the images (before and after
+% %       the metric rectification) with the chosen lines printed on it.
+% %       Compute also the angles between the pair of lines before and after
+% %       rectification.
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% 4. Affine and Metric Rectification of the left facade of image 0001
+% 
+% % ToDo: Write the code that rectifies the left facade of image 0001 with
+% %       the stratified method (affine + metric). 
+% %       Crop the initial image so that only the left facade is visible.
+% %       Show the (properly) transformed lines that use in every step.
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% 5. OPTIONAL: Metric Rectification in a single step
+% % Use 5 pairs of orthogonal lines (pages 55-57, Hartley-Zisserman book)
+% 
+% 
+% 
 
