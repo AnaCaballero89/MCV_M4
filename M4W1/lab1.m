@@ -1,6 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Lab 1: Image rectification
-
+clear all;
+close all;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 1. Applying image transformations
@@ -22,18 +23,17 @@ I=imread('Data/0005_s.png'); % we have to be in the proper folder
 % --> Rotation Matrix [ cos(theta) - sin(theta); cos(theta) sin(theta)]; 
 % --> where theta is the orientation angle; Gloria's cass notes
 s = 0.5;
-theta = 30;
+theta = 90;
 A = [(s*cosd(theta))  (-s*sind(theta)) ; (s*sind(theta))  (s*cosd(theta))];
-t1 = 5;
+t1 = 5
 t2 = 10;
 v1 = 0;
 v2 = 0;
 % --> H = [A t ; 0 1]
-% --> A is a non-singular 2 × 2 matrix
+% --> A is a non-singular 2 ï¿½ 2 matrix
 % --> T (t1 and t2) is a translation vector
 % --> 0 (v1 and v2) is a 0 vector
 H =  [A(1,1), A(1,2), t1 ; A(2,1), A(2,2), t2; v1, v2, 1];
-
 
 I2 = apply_H(I, H);
 figure; imshow(I); figure; imshow(uint8(I2));
@@ -46,7 +46,7 @@ A = [0 1; 1 1];
 t1 = 4;
 t2 = 6;
 % --> H = [A t ; 0 1]
-% --> A is a non-singular 2 × 2 matrix
+% --> A is a non-singular 2 ï¿½ 2 matrix
 % --> T (t1 and t2) is a translation vector
 % --> 0 (v1 and v2) is a 0 vector
 H = [A(1,1), A(1,2), t1 ; A(2,1), A(2,2), t2; v1, v2, 1];
