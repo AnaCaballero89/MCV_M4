@@ -342,27 +342,32 @@ plot(t, -(m2trans(1)*t+m2trans(3))/m2trans(2), 'y');
 % --> Normalize
 l1 = l1/l1(3);
 m1 = m1/m1(3);
-degrees = angle(l1(1:2), m1(1:2));
-fprintf('angle between metric rectified l1 and m1 is , %f degrees', degrees);
+degrees = atan2d(norm(cross(l1,m1)),dot(l1,m1));
+%degrees = angle(l1(1:2), m1(1:2));
+fprintf('angle between metric rectified l1 and m1 is %f degrees \n', degrees);
 
 % --> Normalize
 l2 = l2/l2(3);
 m2 = m2/m2(3);
-degrees = angle(l2(1:2), m2(1:2));
-fprintf('angle between metric rectified l2 and m2 is , %f degrees', degrees);
+degrees = atan2d(norm(cross(l2,m2)),dot(l2,m2));
+%degrees = angle(l2(1:2), m2(1:2));
+fprintf('angle between metric rectified l2 and m2 is %f degrees \n', degrees);
 
 % --> TRANSOFRMED LINES 
 % --> Normalize
 l1trans = l1trans/l1trans(3);
 m1trans = m1trans/m1trans(3);
-degrees = angle(l1trans(1:2), m1trans(1:2));
-fprintf('angle between metric rectified l1trans and m1trans is , %f degrees', degrees);
+degrees = atan2d(norm(cross(l1trans,m1trans)),dot(l1trans,m1trans));
+%degrees = angle(l1trans(1:2), m1trans(1:2));
+fprintf('angle between metric rectified l1trans and m1trans is %f degrees \n', degrees);
 
 % --> Normalize
 l2trans = l2trans/l2trans(3);
 m2trans = m2trans/m2trans(3);
-degrees = angle(l2trans(1:2), m2trans(1:2));
-fprintf('angle between metric rectified l2trans and m2trans is , %f degrees', degrees);
+degrees = atan2d(norm(cross(l2trans,m2trans)),dot(l2trans,m2trans));
+%degrees = angle(l2trans(1:2), m2trans(1:2));
+fprintf('angle between metric rectified l2trans and m2trans is %f degrees \n', degrees);
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 4. Affine and Metric Rectification of the left facade of image 0001
