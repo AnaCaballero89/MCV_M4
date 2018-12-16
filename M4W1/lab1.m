@@ -109,7 +109,7 @@ figure; imshow(I); figure; imshow(uint8(I2_decomposition));
 
 diff = I2-I2_decomposition;
 
-if diff == 0
+if ((sum(diff(:))) == 0 ) || (isnan((sum(diff(:)))) ) 
     disp('images are equal')
 else
     disp('images are not equal')
