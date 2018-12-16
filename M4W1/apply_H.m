@@ -39,7 +39,7 @@ function Ioutput=apply_H (I, H)
 
     % Transform image
     Im_world= H\XYZ; % Apply inverse transformation in projected space
-    Im_world = Im_world/Im_world(3); % Transform to world coordinates
+    Im_world = Im_world./Im_world(3,:); % Transform to world coordinates
     X_im = reshape(Im_world(1,:), Hrow, Hcol);
     Y_im = reshape(Im_world(2,:), Hrow, Hcol);
     
