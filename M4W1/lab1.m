@@ -23,9 +23,9 @@ I=imread('Data/0005_s.png'); % we have to be in the proper folder
 % --> Rotation Matrix [ cos(theta) - sin(theta); cos(theta) sin(theta)]; 
 % --> where theta is the orientation angle; Gloria's cass notes
 s = 0.5;
-theta = 90;
+theta = 30;
 A = [(s*cosd(theta))  (-s*sind(theta)) ; (s*sind(theta))  (s*cosd(theta))];
-t1 = 5
+t1 = 5;
 t2 = 10;
 v1 = 0;
 v2 = 0;
@@ -56,22 +56,30 @@ figure; imshow(I); figure; imshow(uint8(I2));
 
 % ToDo: decompose the affinity in four transformations: two
 % rotations, a scale, and a translation
-% --> translation
-T = [1 0 t1;0 1 t2; 0 0 1];
 
-% --> rotation
-% --> slide 6 lecture2a.pdf
+% --> Translation matrix
+T = [1 0 t1;
+     0 1 t2;
+     0 0 1];
+
+% --> Rotation matrix phi and theta (slide 6 lecture2a.pdf)
 [U,D,V] = svd(A);
 Rtheta = U';
 Rphi = V';
-Rtheta = [Rtheta(1,1), Rtheta(1,2), 0 ; Rtheta(2,1), Rtheta(2,2), 0; 0,0,1];
-Rphi = [Rphi(1,1), Rphi(1,2), 0 ; Rphi(2,1), Rphi(2,2), 0; 0,0,1];
+Rtheta = [Rtheta(1,1), Rtheta(1,2), 0 ;
+          Rtheta(2,1), Rtheta(2,2), 0; 
+          0,           0,           1];
+Rphi = [Rphi(1,1), Rphi(1,2), 0; 
+        Rphi(2,1), Rphi(2,2), 0;
+        0,         0,         1];
 
-% --> scale
-D = [D(1,1), D(1,2), 0 ; D(2,1), D(2,2), 0 ; 0,0,1];
+% --> Scale matrix
+S = [D(1,1), D(1,2), 0;
+     D(2,1), D(2,2), 0;
+     0,      0,      1];
 
 % H--> H decomposition
-H_decomposition = T*(Rtheta*Rphi*D);
+H_decomposition = T*(Rtheta*Rphi*S);
 
 % ToDo: verify that the product of the four previous transformations
 % produces the same matrix H as above
@@ -85,8 +93,8 @@ end
 % ToDo: verify that the proper sequence of the four previous
 % transformations over the image I produces the same image I2 as before
 
-I2 = apply_H(I, H_decomposition);
-figure; imshow(I); figure; imshow(uint8(I2));
+I2_decomposition = apply_H(I, H_decomposition);
+figure; imshow(I); figure; imshow(uint8(I2_decomposition));
 
 diff = I2-I2_decomposition;
 if diff == 0
