@@ -30,7 +30,7 @@ t2 = 10;
 v1 = 0;
 v2 = 0;
 % --> H = [A t ; 0 1]
-% --> A is a non-singular 2 × 2 matrix
+% --> A is a non-singular 2 ï¿½ 2 matrix
 % --> T (t1 and t2) is a translation vector
 % --> 0 (v1 and v2) is a 0 vector
 H =  [A(1,1),   A(1,2),     t1 ; 
@@ -50,7 +50,7 @@ A = [0 1;
 t1 = 4;
 t2 = 6;
 % --> H = [A t ; 0 1]
-% --> A is a non-singular 2 × 2 matrix
+% --> A is a non-singular 2 ï¿½ 2 matrix
 % --> T (t1 and t2) is a translation vector
 % --> 0 (v1 and v2) is a 0 vector
 H = [A(1,1),    A(1,2),     t1 ; 
@@ -115,89 +115,126 @@ else
     disp('images are not equal')
 end
 
-% %% 1.3 Projective transformations (homographies)
-% 
-% % ToDo: generate a matrix H which produces a projective transformation
-% 
-% I2 = apply_H(I, H);
-% figure; imshow(I); figure; imshow(uint8(I2));
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %% 2. Affine Rectification
-% 
-% 
-% % choose the image points
-% I=imread('Data/0000_s.png');
-% A = load('Data/0000_s_info_lines.txt');
-% 
-% % indices of lines
-% i = 424;
-% p1 = [A(i,1) A(i,2) 1]';
-% p2 = [A(i,3) A(i,4) 1]';
-% i = 240;
-% p3 = [A(i,1) A(i,2) 1]';
-% p4 = [A(i,3) A(i,4) 1]';
-% i = 712;
-% p5 = [A(i,1) A(i,2) 1]';
-% p6 = [A(i,3) A(i,4) 1]';
-% i = 565;
-% p7 = [A(i,1) A(i,2) 1]';
-% p8 = [A(i,3) A(i,4) 1]';
-% 
-% % ToDo: compute the lines l1, l2, l3, l4, that pass through the different pairs of points
-% 
-% 
-% % show the chosen lines in the image
-% figure;imshow(I);
-% hold on;
-% t=1:0.1:1000;
-% plot(t, -(l1(1)*t + l1(3)) / l1(2), 'y');
-% plot(t, -(l2(1)*t + l2(3)) / l2(2), 'y');
-% plot(t, -(l3(1)*t + l3(3)) / l3(2), 'y');
-% plot(t, -(l4(1)*t + l4(3)) / l4(2), 'y');
-% 
-% % ToDo: compute the homography that affinely rectifies the image
-% 
-% I2 = apply_H(I, H);
-% figure; imshow(uint8(I2));
-% 
-% % ToDo: compute the transformed lines lr1, lr2, lr3, lr4
-% 
-% % show the transformed lines in the transformed image
-% figure;imshow(uint8(I2));
-% hold on;
-% t=1:0.1:1000;
-% plot(t, -(lr1(1)*t + lr1(3)) / lr1(2), 'y');
-% plot(t, -(lr2(1)*t + lr2(3)) / lr2(2), 'y');
-% plot(t, -(lr3(1)*t + lr3(3)) / lr3(2), 'y');
-% plot(t, -(lr4(1)*t + lr4(3)) / lr4(2), 'y');
-% 
-% % ToDo: to evaluate the results, compute the angle between the different pair 
-% % of lines before and after the image transformation
-% 
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %% 3. Metric Rectification
-% 
-% %% 3.1 Metric rectification after the affine rectification (stratified solution)
-% 
-% % ToDo: Metric rectification (after the affine rectification) using two non-parallel orthogonal line pairs
-% %       As evaluation method you can display the images (before and after
-% %       the metric rectification) with the chosen lines printed on it.
-% %       Compute also the angles between the pair of lines before and after
-% %       rectification.
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %% 4. Affine and Metric Rectification of the left facade of image 0001
-% 
-% % ToDo: Write the code that rectifies the left facade of image 0001 with
-% %       the stratified method (affine + metric). 
-% %       Crop the initial image so that only the left facade is visible.
-% %       Show the (properly) transformed lines that use in every step.
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %% 5. OPTIONAL: Metric Rectification in a single step
-% % Use 5 pairs of orthogonal lines (pages 55-57, Hartley-Zisserman book)
-% 
-% 
-% 
+%% 1.3 Projective transformations (homographies)
+
+% ToDo: generate a matrix H which produces a projective transformation
+
+I2 = apply_H(I, H);
+figure; imshow(I); figure; imshow(uint8(I2));
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 2. Affine Rectification
+
+% choose the image points
+I=imread('Data/0000_s.png');
+A = load('Data/0000_s_info_lines.txt');
+
+% indices of lines
+i = 424;
+p1 = [A(i,1) A(i,2) 1]';
+p2 = [A(i,3) A(i,4) 1]';
+i = 240;
+p3 = [A(i,1) A(i,2) 1]';
+p4 = [A(i,3) A(i,4) 1]';
+i = 712;
+p5 = [A(i,1) A(i,2) 1]';
+p6 = [A(i,3) A(i,4) 1]';
+i = 565;
+p7 = [A(i,1) A(i,2) 1]';
+p8 = [A(i,3) A(i,4) 1]';
+
+% ToDo: compute the lines l1, l2, l3, l4, that pass through the different
+% pairs of points
+
+% Longer way
+
+% coeff = polyfit([p1(1), p2(1)], [p1(2), p2(2)], 1); % y=mx+n 
+% l1 = [-coeff(1) 1 -coeff(2)]; % (in images y increases downwards,y=-mx-n )
+% coeff = polyfit([p3(1), p4(1)], [p3(2), p4(2)], 1); % y=mx+n 
+% l2 = [-coeff(1) 1 -coeff(2)]; % (in images y increases downwards,y=-mx-n )
+% coeff = polyfit([p5(1), p6(1)], [p5(2), p6(2)], 1); % y=mx+n 
+% l3 = [-coeff(1) 1 -coeff(2)]; % (in images y increases downwards,y=-mx-n )
+% coeff = polyfit([p7(1), p8(1)], [p7(2), p8(2)], 1); % y=mx+n 
+% l4 = [-coeff(1) 1 -coeff(2)]; % (in images y increases downwards,y=-mx-n )
+
+% Easier way
+l1 = cross(p1,p2);
+l2 = cross(p3,p4);
+l3 = cross(p5, p6);
+l4 = cross(p7, p8);
+
+% show the chosen lines in the image
+figure;imshow(I);
+hold on;
+scatter(p1(1),p1(2),'r'); scatter(p2(1),p2(2),'r'); 
+scatter(p3(1),p3(2),'r'); scatter(p4(1),p4(2),'r'); 
+scatter(p5(1),p6(2),'r'); scatter(p5(1),p6(2),'r'); 
+scatter(p7(1),p8(2),'r'); scatter(p7(1),p8(2),'r'); 
+t=1:0.1:1000;
+plot(t, -(l1(1)*t + l1(3)) / l1(2), 'y');
+plot(t, -(l2(1)*t + l2(3)) / l2(2), 'y');
+plot(t, -(l3(1)*t + l3(3)) / l3(2), 'y');
+plot(t, -(l4(1)*t + l4(3)) / l4(2), 'y');
+
+% ToDo: compute the homography that affinely rectifies the image
+
+% Compute Vanishing points as cross product of "parallel" lines
+v1 = cross(l1,l2);
+v1 = v1/v1(3);
+v2 = cross(l2, l3);
+v2 = v2/v2(3);
+
+% Compute vanishing line as cross product of vanishing points
+l_va = cross(v1, v2);
+
+% Matrix H 
+H = [1               0               0;
+     0               1               0;
+     l_va(1)/l_va(3) l_va(2)/l_va(3) 1];
+
+I2 = apply_H(I, H'); % ------------> H transposed, not sure why
+figure; imshow(uint8(I2));
+
+% ToDo: compute the transformed lines lr1, lr2, lr3, lr4
+
+
+
+
+% show the transformed lines in the transformed image
+figure;imshow(uint8(I2));
+hold on;
+t=1:0.1:1000;
+plot(t, -(lr1(1)*t + lr1(3)) / lr1(2), 'y');
+plot(t, -(lr2(1)*t + lr2(3)) / lr2(2), 'y');
+plot(t, -(lr3(1)*t + lr3(3)) / lr3(2), 'y');
+plot(t, -(lr4(1)*t + lr4(3)) / lr4(2), 'y');
+
+% ToDo: to evaluate the results, compute the angle between the different pair 
+% of lines before and after the image transformation
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 3. Metric Rectification
+
+%% 3.1 Metric rectification after the affine rectification (stratified solution)
+
+% ToDo: Metric rectification (after the affine rectification) using two non-parallel orthogonal line pairs
+%       As evaluation method you can display the images (before and after
+%       the metric rectification) with the chosen lines printed on it.
+%       Compute also the angles between the pair of lines before and after
+%       rectification.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 4. Affine and Metric Rectification of the left facade of image 0001
+
+% ToDo: Write the code that rectifies the left facade of image 0001 with
+%       the stratified method (affine + metric). 
+%       Crop the initial image so that only the left facade is visible.
+%       Show the (properly) transformed lines that use in every step.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 5. OPTIONAL: Metric Rectification in a single step
+% Use 5 pairs of orthogonal lines (pages 55-57, Hartley-Zisserman book)
+
+
+

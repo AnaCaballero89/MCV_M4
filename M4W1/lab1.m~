@@ -1,7 +1,6 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Lab 1: Image rectification
-clear all;
-close all;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 1. Applying image transformations
@@ -22,10 +21,11 @@ I=imread('Data/0005_s.png'); % we have to be in the proper folder
 % --> H (3x3 Matrix) is a given homography 
 % --> Rotation Matrix [ cos(theta) - sin(theta); cos(theta) sin(theta)]; 
 % --> where theta is the orientation angle; Gloria's cass notes
-s = 0;
+s = 0.5;
 theta = 30;
-A = [(s*cosd(theta))  (-s*sind(theta)) ; (s*sind(theta))  (s*cosd(theta))];
-t1 = 5
+A = [(s*cosd(theta))  (-s*sind(theta)) ; 
+    (s*sind(theta))  (s*cosd(theta))];
+t1 = 5;
 t2 = 10;
 v1 = 0;
 v2 = 0;
@@ -33,7 +33,10 @@ v2 = 0;
 % --> A is a non-singular 2 � 2 matrix
 % --> T (t1 and t2) is a translation vector
 % --> 0 (v1 and v2) is a 0 vector
-H =  [A(1,1), A(1,2), t1 ; A(2,1), A(2,2), t2; v1, v2, 1];
+H =  [A(1,1),   A(1,2),     t1 ; 
+      A(2,1),   A(2,2),     t2; 
+      v1,       v2,          1];
+
 
 I2 = apply_H(I, H);
 figure; imshow(I); figure; imshow(uint8(I2));
@@ -42,14 +45,18 @@ figure; imshow(I); figure; imshow(uint8(I2));
 %% 1.2. Affinities
 
 % ToDo: generate a matrix H which produces an affine transformation
-A = [0 1; 1 1];
+A = [0 1; 
+    1 1];
 t1 = 4;
 t2 = 6;
 % --> H = [A t ; 0 1]
 % --> A is a non-singular 2 � 2 matrix
 % --> T (t1 and t2) is a translation vector
 % --> 0 (v1 and v2) is a 0 vector
-H = [A(1,1), A(1,2), t1 ; A(2,1), A(2,2), t2; v1, v2, 1];
+H = [A(1,1),    A(1,2),     t1 ; 
+    A(2,1),     A(2,2),     t2; 
+    v1,         v2,          1];
+
 
 I2 = apply_H(I, H);
 figure; imshow(I); figure; imshow(uint8(I2));
@@ -57,21 +64,33 @@ figure; imshow(I); figure; imshow(uint8(I2));
 % ToDo: decompose the affinity in four transformations: two
 % rotations, a scale, and a translation
 % --> translation
-T = [1 0 t1;0 1 t2; 0 0 1];
+T = [1 0 t1;
+    0 1 t2; 
+    0 0 1];
 
 % --> rotation
 % --> slide 6 lecture2a.pdf
 [U,D,V] = svd(A);
-Rtheta = U';
+Rtheta = U*V';
 Rphi = V';
-Rtheta = [Rtheta(1,1), Rtheta(1,2), 0 ; Rtheta(2,1), Rtheta(2,2), 0; 0,0,1];
-Rphi = [Rphi(1,1), Rphi(1,2), 0 ; Rphi(2,1), Rphi(2,2), 0; 0,0,1];
+
+Rtheta = [Rtheta(1,1),  Rtheta(1,2),    0 ; 
+        Rtheta(2,1),    Rtheta(2,2),    0; 
+        0,              0,              1];
+
+Rphi = [Rphi(1,1),  Rphi(1,2), 0 ; 
+        Rphi(2,1),   Rphi(2,2), 0; 
+        0,          0,          1];
+
+Rphit = Rphi';
 
 % --> scale
-D = [D(1,1), D(1,2), 0 ; D(2,1), D(2,2), 0 ; 0,0,1];
+S = [D(1,1),     D(1,2), 0 ; 
+    D(2,1),      D(2,2), 0 ; 
+    0,           0,      1];
 
 % H--> H decomposition
-H_decomposition = T*(Rtheta*Rphi*D);
+H_decomposition = T*(Rtheta*Rphit*S*Rphi);
 
 % ToDo: verify that the product of the four previous transformations
 % produces the same matrix H as above
@@ -85,10 +104,11 @@ end
 % ToDo: verify that the proper sequence of the four previous
 % transformations over the image I produces the same image I2 as before
 
-I2 = apply_H(I, H_decomposition);
-figure; imshow(I); figure; imshow(uint8(I2));
+I2_decomposition = apply_H(I, H_decomposition);
+figure; imshow(I); figure; imshow(uint8(I2_decomposition));
 
 diff = I2-I2_decomposition;
+
 if diff == 0
     disp('images are equal')
 else
@@ -104,7 +124,6 @@ figure; imshow(I); figure; imshow(uint8(I2));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 2. Affine Rectification
-
 
 % choose the image points
 I=imread('Data/0000_s.png');
@@ -124,12 +143,24 @@ i = 565;
 p7 = [A(i,1) A(i,2) 1]';
 p8 = [A(i,3) A(i,4) 1]';
 
-% ToDo: compute the lines l1, l2, l3, l4, that pass through the different pairs of points
-
+% ToDo: compute the lines l1, l2, l3, l4, that pass through the different
+% pairs of points
+coeff = polyfit([p1(1), p2(1)], [p1(2), p2(2)], 1); % y=mx+n 
+l1 = [-coeff(1) 1 -coeff(2)]; % (in images y increases downwards,y=-mx-n )
+coeff = polyfit([p3(1), p4(1)], [p3(2), p4(2)], 1); % y=mx+n 
+l2 = [-coeff(1) 1 -coeff(2)]; % (in images y increases downwards,y=-mx-n )
+coeff = polyfit([p5(1), p6(1)], [p5(2), p6(2)], 1); % y=mx+n 
+l3 = [-coeff(1) 1 -coeff(2)]; % (in images y increases downwards,y=-mx-n )
+coeff = polyfit([p7(1), p8(1)], [p7(2), p8(2)], 1); % y=mx+n 
+l4 = [-coeff(1) 1 -coeff(2)]; % (in images y increases downwards,y=-mx-n )
 
 % show the chosen lines in the image
 figure;imshow(I);
 hold on;
+scatter(p1(1),p1(2),'r'); scatter(p2(1),p2(2),'r'); 
+scatter(p3(1),p3(2),'r'); scatter(p4(1),p4(2),'r'); 
+scatter(p5(1),p6(2),'r'); scatter(p5(1),p6(2),'r'); 
+scatter(p7(1),p8(2),'r'); scatter(p7(1),p8(2),'r'); 
 t=1:0.1:1000;
 plot(t, -(l1(1)*t + l1(3)) / l1(2), 'y');
 plot(t, -(l2(1)*t + l2(3)) / l2(2), 'y');
@@ -137,6 +168,18 @@ plot(t, -(l3(1)*t + l3(3)) / l3(2), 'y');
 plot(t, -(l4(1)*t + l4(3)) / l4(2), 'y');
 
 % ToDo: compute the homography that affinely rectifies the image
+
+% Compute Vanishing points as cross product of "parallel" lines
+v1 = cross(l1,l2);
+v2 = cross(l2, l3);
+
+% Compute vanishing line as cross product if vanishing points
+l_vanish = cross()
+
+
+% H = [1  0  0;
+%      0  1  0;
+%      l1 l2 l3];
 
 I2 = apply_H(I, H);
 figure; imshow(uint8(I2));
