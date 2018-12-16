@@ -251,7 +251,6 @@ plot(t, -(lr4(1)*t + lr4(3)) / lr4(2), 'y');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 3. Metric Rectification
-
 %% 3.1 Metric rectification after the affine rectification (stratified solution)
 
 % ToDo: Metric rectification (after the affine rectification) using two non-parallel orthogonal line pairs
@@ -259,6 +258,79 @@ plot(t, -(lr4(1)*t + lr4(3)) / lr4(2), 'y');
 %       the metric rectification) with the chosen lines printed on it.
 %       Compute also the angles between the pair of lines before and after
 %       rectification.
+% 
+% --> Orthogonal pair of lines 1
+l1 = lr1;
+m1 = lr3;
+% --> Orthogonal pair of lines 2
+l2 = lr2;
+m2 = lr4;
+
+% --> slide 48 /lecture2_CB.pdf
+A = [l1(1)*m1(1),   l1(1)*m1(2)+l1(2)*m1(1),    l1(2)*m1(2);
+     l2(1)*m2(1),   l2(1)*m2(2)+l2(2)*m2(1),    l2(2)*m2(2)];
+ % --> orthonormal basis for the null space of A 
+s_vec = null(A);
+% --> solve a system of equations to get S
+S = [s_vec(1),  s_vec(2); 
+    s_vec(2),   s_vec(3)];
+
+K = chol(S); % --> upper triangular matrix K from the diagonal and upper triangle of matrix S
+H = eye(3); % --> 3x3 identity matrix with ones on the main diagonal and zeros elsewhere
+K = inv(K); % --> inverse matrix
+H(1:2,1:2) = K;
+
+% --> transformed lines
+l1trans = inv(H')*l1;
+l2trans = inv(H')*l2;
+m1trans = inv(H')*m1;
+m2trans = inv(H')*m2;
+
+% --> VISUALIZE LINES
+% --> visualize original lines
+figure;imshow(uint8(I2));
+hold on;
+t=1:0.1:1000;
+plot(t, -(l1(1)*t+l1(3))/l1(2), 'y');
+plot(t, -(m1(1)*t+m1(3))/m1(2), 'y');
+plot(t, -(l2(1)*t+l2(3))/l2(2), 'y');
+plot(t, -(m2(1)*t+m2(3))/m2(2), 'y');
+
+% --> visualize transformed lines
+I4 = apply_H(I3, H); % --> I3 comes from previous part
+figure; imshow(uint8(I4));
+hold on;
+t=1:0.1:1000;
+plot(t, -(l1trans(1)*t+l1trans(3))/l1trans(2), 'y');
+plot(t, -(m1trans(1)*t+m1trans(3))/m1trans(2), 'y');
+plot(t, -(l2trans(1)*t+l2trans(3))/l2trans(2), 'y');
+plot(t, -(m2trans(1)*t+m2trans(3))/m2trans(2), 'y');
+
+% --> ORIGINAL LINES
+% --> Normalize
+l1 = l1/l1(3);
+m1 = m1/m1(3);
+degrees = angle(l1(1:2), m1(1:2));
+fprintf('angle between metric rectified l1 and m1 is , %f degrees', degrees);
+
+% --> Normalize
+l2 = l2/l2(3);
+m2 = m2/m2(3);
+degrees = angle(l2(1:2), m2(1:2));
+fprintf('angle between metric rectified l2 and m2 is , %f degrees', degrees);
+
+% --> TRANSOFRMED LINES 
+% --> Normalize
+l1trans = l1trans/l1trans(3);
+m1trans = m1trans/m1trans(3);
+degrees = angle(l1trans(1:2), m1trans(1:2));
+fprintf('angle between metric rectified l1trans and m1trans is , %f degrees', degrees);
+
+% --> Normalize
+l2trans = l2trans/l2trans(3);
+m2trans = m2trans/m2trans(3);
+degrees = angle(l2trans(1:2), m2trans(1:2));
+fprintf('angle between metric rectified l2trans and m2trans is , %f degrees', degrees);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 4. Affine and Metric Rectification of the left facade of image 0001
