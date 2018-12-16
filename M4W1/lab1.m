@@ -115,15 +115,50 @@ else
     disp('images are not equal')
 end
 
-% %% 1.3 Projective transformations (homographies)
-% 
-% % ToDo: generate a matrix H which produces a projective transformation
-% 
-% I2 = apply_H(I, H);
-% figure; imshow(I); figure; imshow(uint8(I2));
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %% 2. Affine Rectification
+%% 1.3 Projective transformations (homographies)
+
+% ToDo: generate a matrix H which produces a projective transformation,that
+% can be descomposed in a product of 3 matrix, H= Hs*Ha*Hp, where Hs is a
+% similarity transformation, Ha affinity transformation and Hp the
+% projective one.
+
+% First, the Hs similarity transformation, 
+% Remember: Hs=[A t; 0 1], where A is the Rotation Matrix [ cos(theta) -
+% sin(theta); cos(theta) sin(theta)]; and t the translation vector(t1,t2)
+theta = 30;
+s=0.5;
+A = [(s*cosd(theta))  (-s*sind(theta)) ; (s*sind(theta))  (s*cosd(theta))];
+t1 = 5;
+t2 = 10;
+v1 = 0;
+v2 = 0;
+Hs=  [A(1,1), A(1,2), t1 ; A(2,1), A(2,2), t2; v1, v2, 1];
+% Then, the Ha affinity transformation 
+% Remember: Ha=[K t ; 0 1], where K is a non singular 2x2 matrix and T (t1 
+% and t2) is a translation vector 
+K= [0 1; 
+    1 1];
+t1 = 0;
+t2 = 0;
+Ha= [K(1,1),    K(1,2),     t1 ; 
+    K(2,1),     K(2,2),     t2; 
+     0,         0,          1];
+% Finally, we have Hp projective transformation. 
+% Hp=[I 0; v vi], where v is not null 
+Iden=[1 0;
+   0 1];
+v=[0 0];
+vi=1;
+Hp=[Iden [0;0]; v vi];
+
+% Homography as H=Hs*Ha*Hp
+H=Hs*Ha*Hp;
+
+I2 = apply_H(I, H);
+figure; imshow(I); figure; imshow(uint8(I2));
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 2. Affine Rectification
 % 
 % 
 % % choose the image points
