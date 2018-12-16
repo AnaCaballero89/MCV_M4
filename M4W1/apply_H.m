@@ -5,6 +5,7 @@ function Ioutput=apply_H (I, H)
     
     % Recompute the corners of the new image to fit transformed image
     % We transform the corners of the image in homogeneous coordinates:
+
     [rows, cols, channels] = size(I);
     C1 = [1 1 1]';
     C2 = [cols 1 1]';
@@ -29,7 +30,9 @@ function Ioutput=apply_H (I, H)
     y_min = round(min([HC1(2) HC2(2) HC3(2) HC4(2)]));
     x_max = round(max([HC1(1) HC2(1) HC3(1) HC4(1)]));
     y_max = round(max([HC1(2) HC2(2) HC3(2) HC4(2)]));
-
+ 
+  
+ 
     % Generate meshgrid to fit resulting image
     [X,Y] = meshgrid(x_min:x_max, y_min:y_max);
     
@@ -39,7 +42,7 @@ function Ioutput=apply_H (I, H)
 
     % Transform image
     Im_world= H\XYZ; % Apply inverse transformation in projected space
-    Im_world = Im_world/Im_world(3); % Transform to world coordinates
+    Im_world = Im_world./Im_world(3,:); % Transform to world coordinates
     X_im = reshape(Im_world(1,:), Hrow, Hcol);
     Y_im = reshape(Im_world(2,:), Hrow, Hcol);
     
