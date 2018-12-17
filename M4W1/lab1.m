@@ -276,10 +276,10 @@ ang_lr1_lr2 = atand((slope_lr1-slope_lr2)/(1+slope_lr1*slope_lr2));
 ang_l3_l4 = atand((slope_l3-slope_l4)/(1+slope_l3*slope_l4));
 ang_lr3_lr4 = atand((slope_lr3-slope_lr4)/(1+slope_lr3*slope_lr4));
 
-fprintf('Angle between l1 and l1 is , %f degrees\n', ang_l1_l2);
-fprintf('Angle between affine rectified l1 and l1 is , %f degrees\n', ang_lr1_lr2);
+fprintf('Angle between l1 and l2 is , %f degrees\n', ang_l1_l2);
+fprintf('Angle between affine rectified lr1 and lr2 is , %f degrees\n', ang_lr1_lr2);
 fprintf('Angle between affine l3 and l4 is , %f degrees\n', ang_l3_l4);
-fprintf('Angle between affine rectified l3 and l4 is , %f degrees\n', ang_lr3_lr4);
+fprintf('Angle between affine rectified lr3 and lr4 is , %f degrees\n', ang_lr3_lr4);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 3. Metric Rectification
@@ -287,7 +287,7 @@ fprintf('Angle between affine rectified l3 and l4 is , %f degrees\n', ang_lr3_lr
 
 % ToDo: Metric rectification (after the affine rectification) using two non-parallel orthogonal line pairs
 %       As evaluation method you can display the images (before and after
-%       the metric recºtification) with the chosen lines printed on it.
+%       the metric recï¿½tification) with the chosen lines printed on it.
 %       Compute also the angles between the pair of lines before and after
 %       rectification.
 % 
@@ -376,6 +376,7 @@ fprintf('angle between metric rectified l2trans and m2trans is %f degrees \n', d
 %       the stratified method (affine + metric). 
 %       Crop the initial image so that only the left facade is visible.
 %       Show the (properly) transformed lines that use in every step.
+
 I=imread('Data/0001_s_crop.png');
 A = load('Data/0001_s_info_lines.txt');
 
@@ -474,12 +475,12 @@ ang_lr1_lr2 = atand((slope_lr1-slope_lr2)/(1+slope_lr1*slope_lr2));
 ang_l3_l4 = atand((slope_l3-slope_l4)/(1+slope_l3*slope_l4));
 ang_lr3_lr4 = atand((slope_lr3-slope_lr4)/(1+slope_lr3*slope_lr4));
 
-fprintf('Angle between l1 and l1 is , %f degrees\n', ang_l1_l2);
-fprintf('Angle between affine rectified l1 and l1 is , %f degrees\n', ang_lr1_lr2);
+fprintf('Angle between l1 and l2 is , %f degrees\n', ang_l1_l2);
+fprintf('Angle between affine rectified lr1 and lr2 is , %f degrees\n', ang_lr1_lr2);
 fprintf('Angle between affine l3 and l4 is , %f degrees\n', ang_l3_l4);
-fprintf('Angle between affine rectified l3 and l4 is , %f degrees\n', ang_lr3_lr4);
+fprintf('Angle between affine rectified lr3 and lr4 is , %f degrees\n', ang_lr3_lr4);
 
-%%
+% Metric rectification
 l1 = lr1;
 m1 = lr3;
 % --> Orthogonal pair of lines 2
@@ -508,7 +509,7 @@ m2trans = inv(H')*m2;
 
 % --> VISUALIZE LINES
 % --> visualize original lines
-figure;imshow(uint8(I));
+figure;imshow(uint8(I3));
 hold on;
 t=1:0.1:1000;
 plot(t, -(l1(1)*t+l1(3))/l1(2), 'y');
