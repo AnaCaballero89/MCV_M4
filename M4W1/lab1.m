@@ -313,10 +313,10 @@ K = inv(K); % --> inverse matrix
 H(1:2,1:2) = K;
 
 % --> transformed lines
-l1trans = inv(H')*l1;
-l2trans = inv(H')*l2;
-m1trans = inv(H')*m1;
-m2trans = inv(H')*m2;
+l1trans = H\l1;%inv(H')*l1;
+l2trans = H\l2;%inv(H')*l2;
+m1trans = H\m1;%inv(H')*m1;
+m2trans = H\m2;%inv(H')*m2;
 
 % --> VISUALIZE LINES
 % --> visualize original lines
@@ -399,7 +399,7 @@ fprintf('Angle between affine+metric rectified l2 transf. and m2 transf. is , %f
 %       the stratified method (affine + metric). 
 %       Crop the initial image so that only the left facade is visible.
 %       Show the (properly) transformed lines that use in every step.
-
+close all;
 I=imread('Data/0001_s_crop.png');
 A = load('Data/0001_s_info_lines.txt');
 
@@ -525,10 +525,10 @@ K = inv(K); % --> inverse matrix
 H(1:2,1:2) = K;
 
 % --> transformed lines
-l1trans = inv(H')*l1;
-l2trans = inv(H')*l2;
-m1trans = inv(H')*m1;
-m2trans = inv(H')*m2;
+l1trans = H\l1;%inv(H')*l1;
+l2trans = H\l2;%inv(H')*l2;
+m1trans = H\m1;%inv(H')*m1;
+m2trans = H\m2;%inv(H')*m2;
 
 % --> VISUALIZE LINES
 % --> visualize original lines
