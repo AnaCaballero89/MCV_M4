@@ -278,7 +278,7 @@ ang_lr3_lr4 = atand((slope_lr3-slope_lr4)/(1+slope_lr3*slope_lr4));
 
 fprintf('Angle between l1 and l2 is , %f degrees\n', ang_l1_l2);
 fprintf('Angle between affine rectified lr1 and lr2 is , %f degrees\n', ang_lr1_lr2);
-fprintf('Angle between affine l3 and l4 is , %f degrees\n', ang_l3_l4);
+fprintf('Angle between l3 and l4 is , %f degrees\n', ang_l3_l4);
 fprintf('Angle between affine rectified lr3 and lr4 is , %f degrees\n', ang_lr3_lr4);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -338,35 +338,58 @@ plot(t, -(m1trans(1)*t+m1trans(3))/m1trans(2), 'y');
 plot(t, -(l2trans(1)*t+l2trans(3))/l2trans(2), 'y');
 plot(t, -(m2trans(1)*t+m2trans(3))/m2trans(2), 'y');
 
-% --> ORIGINAL LINES
-% --> Normalize
-l1 = l1/l1(3);
-m1 = m1/m1(3);
-degrees = atan2d(norm(cross(l1,m1)),dot(l1,m1));
-%degrees = angle(l1(1:2), m1(1:2));
-fprintf('angle between metric rectified l1 and m1 is %f degrees \n', degrees);
+% Compute angles Test --------------begin--------------------
+% Slopes of lines before affine transformation
+slope_l1 = -l1(1)/l1(2); slope_l2 = -l2(1)/l2(2);
+slope_m1 = -m1(1)/m1(2); slope_m2 = -m2(1)/m2(2);
 
-% --> Normalize
-l2 = l2/l2(3);
-m2 = m2/m2(3);
-degrees = atan2d(norm(cross(l2,m2)),dot(l2,m2));
-%degrees = angle(l2(1:2), m2(1:2));
-fprintf('angle between metric rectified l2 and m2 is %f degrees \n', degrees);
+% Slopes of lines after affine transformation
+slope_l1trans = -l1trans(1)/l1trans(2); slope_l2trans = -l2trans(1)/l2trans(2);
+slope_m1trans = -m1trans(1)/m1trans(2); slope_m2trans = -m2trans(1)/m2trans(2);
 
-% --> TRANSOFRMED LINES 
-% --> Normalize
-l1trans = l1trans/l1trans(3);
-m1trans = m1trans/m1trans(3);
-degrees = atan2d(norm(cross(l1trans,m1trans)),dot(l1trans,m1trans));
-%degrees = angle(l1trans(1:2), m1trans(1:2));
-fprintf('angle between metric rectified l1trans and m1trans is %f degrees \n', degrees);
+% Angle between lines before and after transformation 
+ang_l1_m1 = atand((slope_l1-slope_m1)/(1+slope_l1*slope_m1));
+ang_l1trans_m1trans = atand((slope_l1trans-slope_m1trans)/(1+slope_l1trans*slope_m1trans));
 
-% --> Normalize
-l2trans = l2trans/l2trans(3);
-m2trans = m2trans/m2trans(3);
-degrees = atan2d(norm(cross(l2trans,m2trans)),dot(l2trans,m2trans));
-%degrees = angle(l2trans(1:2), m2trans(1:2));
-fprintf('angle between metric rectified l2trans and m2trans is %f degrees \n', degrees);
+ang_l2_m2 = atand((slope_l2-slope_m2)/(1+slope_l2*slope_m2));
+ang_l2trans_m2trans = atand((slope_l2trans-slope_m2trans)/(1+slope_l2trans*slope_m2trans));
+
+fprintf('Angle between l1 and m1 is , %f degrees\n', ang_l1_m1);
+fprintf('Angle between affine+metric rectified l1 transf. and m1 transf. is , %f degrees\n', ang_l1trans_m1trans);
+fprintf('Angle between l2 and m2 is , %f degrees\n', ang_l2_m2);
+fprintf('Angle between affine+metric rectified l2 transf. and m2 transf. is , %f degrees\n', ang_l2trans_m2trans);
+% Test --------------end--------------------
+
+
+% % --> ORIGINAL LINES
+% % --> Normalize
+% l1 = l1/l1(3);
+% m1 = m1/m1(3);
+% degrees = atan2d(norm(cross(l1,m1)),dot(l1,m1));
+% %degrees = angle(l1(1:2), m1(1:2));
+% fprintf('angle between metric rectified l1 and m1 is %f degrees \n', degrees);
+% 
+% % --> Normalize
+% l2 = l2/l2(3);
+% m2 = m2/m2(3);
+% degrees = atan2d(norm(cross(l2,m2)),dot(l2,m2));
+% %degrees = angle(l2(1:2), m2(1:2));
+% fprintf('angle between metric rectified l2 and m2 is %f degrees \n', degrees);
+% 
+% % --> TRANSOFRMED LINES 
+% % --> Normalize
+% l1trans = l1trans/l1trans(3);
+% m1trans = m1trans/m1trans(3);
+% degrees = atan2d(norm(cross(l1trans,m1trans)),dot(l1trans,m1trans));
+% %degrees = angle(l1trans(1:2), m1trans(1:2));
+% fprintf('angle between metric rectified l1trans and m1trans is %f degrees \n', degrees);
+% 
+% % --> Normalize
+% l2trans = l2trans/l2trans(3);
+% m2trans = m2trans/m2trans(3);
+% degrees = atan2d(norm(cross(l2trans,m2trans)),dot(l2trans,m2trans));
+% %degrees = angle(l2trans(1:2), m2trans(1:2));
+% fprintf('angle between metric rectified l2trans and m2trans is %f degrees \n', degrees);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -477,7 +500,7 @@ ang_lr3_lr4 = atand((slope_lr3-slope_lr4)/(1+slope_lr3*slope_lr4));
 
 fprintf('Angle between l1 and l2 is , %f degrees\n', ang_l1_l2);
 fprintf('Angle between affine rectified lr1 and lr2 is , %f degrees\n', ang_lr1_lr2);
-fprintf('Angle between affine l3 and l4 is , %f degrees\n', ang_l3_l4);
+fprintf('Angle between l3 and l4 is , %f degrees\n', ang_l3_l4);
 fprintf('Angle between affine rectified lr3 and lr4 is , %f degrees\n', ang_lr3_lr4);
 
 % Metric rectification
@@ -527,35 +550,58 @@ plot(t, -(m1trans(1)*t+m1trans(3))/m1trans(2), 'y');
 plot(t, -(l2trans(1)*t+l2trans(3))/l2trans(2), 'y');
 plot(t, -(m2trans(1)*t+m2trans(3))/m2trans(2), 'y');
 
-% --> ORIGINAL LINES
-% --> Normalize
-l1 = l1/l1(3);
-m1 = m1/m1(3);
-degrees = atan2d(norm(cross(l1,m1)),dot(l1,m1));
-%degrees = angle(l1(1:2), m1(1:2));
-fprintf('angle between metric rectified l1 and m1 is %f degrees \n', degrees);
+% Compute angles Test --------------begin--------------------
+% Slopes of lines before affine transformation
+slope_l1 = -l1(1)/l1(2); slope_l2 = -l2(1)/l2(2);
+slope_m1 = -m1(1)/m1(2); slope_m2 = -m2(1)/m2(2);
 
-% --> Normalize
-l2 = l2/l2(3);
-m2 = m2/m2(3);
-degrees = atan2d(norm(cross(l2,m2)),dot(l2,m2));
-%degrees = angle(l2(1:2), m2(1:2));
-fprintf('angle between metric rectified l2 and m2 is %f degrees \n', degrees);
+% Slopes of lines after affine transformation
+slope_l1trans = -l1trans(1)/l1trans(2); slope_l2trans = -l2trans(1)/l2trans(2);
+slope_m1trans = -m1trans(1)/m1trans(2); slope_m2trans = -m2trans(1)/m2trans(2);
 
-% --> TRANSOFRMED LINES 
-% --> Normalize
-l1trans = l1trans/l1trans(3);
-m1trans = m1trans/m1trans(3);
-degrees = atan2d(norm(cross(l1trans,m1trans)),dot(l1trans,m1trans));
-%degrees = angle(l1trans(1:2), m1trans(1:2));
-fprintf('angle between metric rectified l1trans and m1trans is %f degrees \n', degrees);
+% Angle between lines before and after transformation 
+ang_l1_m1 = atand((slope_l1-slope_m1)/(1+slope_l1*slope_m1));
+ang_l1trans_m1trans = atand((slope_l1trans-slope_m1trans)/(1+slope_l1trans*slope_m1trans));
 
-% --> Normalize
-l2trans = l2trans/l2trans(3);
-m2trans = m2trans/m2trans(3);
-degrees = atan2d(norm(cross(l2trans,m2trans)),dot(l2trans,m2trans));
-%degrees = angle(l2trans(1:2), m2trans(1:2));
-fprintf('angle between metric rectified l2trans and m2trans is %f degrees \n', degrees);
+ang_l2_m2 = atand((slope_l2-slope_m2)/(1+slope_l2*slope_m2));
+ang_l2trans_m2trans = atand((slope_l2trans-slope_m2trans)/(1+slope_l2trans*slope_m2trans));
+
+fprintf('Angle between l1 and m1 is , %f degrees\n', ang_l1_m1);
+fprintf('Angle between affine+metric rectified l1 transf. and m1 transf. is , %f degrees\n', ang_l1trans_m1trans);
+fprintf('Angle between l2 and m2 is , %f degrees\n', ang_l2_m2);
+fprintf('Angle between affine+metric rectified l2 transf. and m2 transf. is , %f degrees\n', ang_l2trans_m2trans);
+% Test --------------end--------------------
+
+
+% % --> ORIGINAL LINES
+% % --> Normalize
+% l1 = l1/l1(3);
+% m1 = m1/m1(3);
+% degrees = atan2d(norm(cross(l1,m1)),dot(l1,m1));
+% %degrees = angle(l1(1:2), m1(1:2));
+% fprintf('angle between metric rectified l1 and m1 is %f degrees \n', degrees);
+% 
+% % --> Normalize
+% l2 = l2/l2(3);
+% m2 = m2/m2(3);
+% degrees = atan2d(norm(cross(l2,m2)),dot(l2,m2));
+% %degrees = angle(l2(1:2), m2(1:2));
+% fprintf('angle between metric rectified l2 and m2 is %f degrees \n', degrees);
+% 
+% % --> TRANSOFRMED LINES 
+% % --> Normalize
+% l1trans = l1trans/l1trans(3);
+% m1trans = m1trans/m1trans(3);
+% degrees = atan2d(norm(cross(l1trans,m1trans)),dot(l1trans,m1trans));
+% %degrees = angle(l1trans(1:2), m1trans(1:2));
+% fprintf('angle between metric rectified l1trans and m1trans is %f degrees \n', degrees);
+% 
+% % --> Normalize
+% l2trans = l2trans/l2trans(3);
+% m2trans = m2trans/m2trans(3);
+% degrees = atan2d(norm(cross(l2trans,m2trans)),dot(l2trans,m2trans));
+% %degrees = angle(l2trans(1:2), m2trans(1:2));
+% fprintf('angle between metric rectified l2trans and m2trans is %f degrees \n', degrees);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
