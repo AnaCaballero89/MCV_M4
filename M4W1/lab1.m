@@ -148,8 +148,8 @@ Ha= [K(1,1),    K(1,2),     t1 ;
 % Hp=[I 0; v vi], where v is not null 
 Iden=[1 0;
    0 1];
-v=[0 0];
-vi=1;
+v=[0.001 0.001];
+vi=0.7;
 Hp=[Iden [0;0]; v vi];
 
 % Homography as H=Hs*Ha*Hp
