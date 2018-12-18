@@ -611,5 +611,98 @@ fprintf('Angle between affine+metric rectified l2 transf. and m2 transf. is , %f
 %% 5. OPTIONAL: Metric Rectification in a single step
 % Use 5 pairs of orthogonal lines (pages 55-57, Hartley-Zisserman book)
 
+I = imread('Data/0000_s.png');
+A = load('Data/0000_s_info_lines.txt');
 
+i = 424;
+p1 = [A(i,1) A(i,2) 1]';
+p2 = [A(i,3) A(i,4) 1]';
+i = 240;
+p3 = [A(i,1) A(i,2) 1]';
+p4 = [A(i,3) A(i,4) 1]';
+i = 712;
+p5 = [A(i,1) A(i,2) 1]';
+p6 = [A(i,3) A(i,4) 1]';
+i = 565;
+p7 = [A(i,1) A(i,2) 1]';
+p8 = [A(i,3) A(i,4) 1]';
+i = 227;
+p9 = [A(i,1) A(i,2) 1]';
+p10 = [A(i,3) A(i,4) 1]';
+i = 534;
+p11 = [A(i,1) A(i,2) 1]';
+p12 = [A(i,3) A(i,4) 1]';
+i = 576;
+p13 = [A(i,1) A(i,2) 1]';
+p14 = [A(i,3) A(i,4) 1]';
+
+
+% we find 5 pair of orthogonal lines (and we normalise each line)
+
+l1 = cross(p1,p2);
+l1 = l1/l1(3);
+l3 = cross(p5,p6);
+l3 = l3/l3(3);
+
+l2 = cross(p3,p4);
+l2 = l2/l2(3);
+l4 = cross(p7,p8);
+l4 = l4/l4(3);
+
+l5 = cross(p9,p10);
+l5 = l5/l5(3);
+l6 = cross(p11,p12);
+l6 = l6/l6(3);
+
+l7 = cross(p9,p14);
+l7 = l7/l7(3);
+l8 = cross(p10,p11);
+l8 = l8/l8(3);
+
+l9 = cross(p1,p8);
+l9 = l9/l9(3);
+l10 = cross(p2,p5);
+l10 = l10/l10(3);
+
+% plot of the selected pairs of orthogonal lines
+figure;imshow(I);
+hold on;
+t=1:0.1:1000;
+plot(t, -(l1(1)*t + l1(3)) / l1(2), 'y');
+plot(t, -(l3(1)*t + l3(3)) / l3(2), 'y');
+plot(t, -(l2(1)*t + l2(3)) / l2(2), 'c');
+plot(t, -(l4(1)*t + l4(3)) / l4(2), 'c');
+plot(t, -(l5(1)*t + l5(3)) / l5(2), 'b');
+plot(t, -(l6(1)*t + l6(3)) / l6(2), 'b');
+plot(t, -(l7(1)*t + l7(3)) / l7(2), 'r');
+plot(t, -(l8(1)*t + l8(3)) / l8(2), 'r');
+plot(t, -(l9(1)*t + l9(3)) / l9(2), 'm');
+plot(t, -(l10(1)*t + l10(3)) / l10(2), 'm');
+
+% System of 5 equations (1 for each pair of lines)
+
+M = [l1(1)*l3(1),((l1(1)*l3(2))+(l1(2)*l3(1)))/2, l1(2)*l3(2),((l1(1)*l3(3))+(l1(3)*l3(2)))/2,((l1(2)*l3(3))+(l1(3)*l3(2)))/2,l1(3)*l3(3); ...
+    l2(1)*l4(1),((l2(1)*l4(2))+(l2(2)*l4(1)))/2, l2(2)*l4(2),((l2(1)*l4(3))+(l2(3)*l4(2)))/2,((l2(2)*l4(3))+(l2(3)*l4(2)))/2,l2(3)*l4(3);...
+    l5(1)*l6(1),((l5(1)*l6(2))+(l5(2)*l6(1)))/2, l5(2)*l6(2),((l5(1)*l6(3))+(l5(3)*l6(2)))/2,((l5(2)*l6(3))+(l5(3)*l6(2)))/2,l5(3)*l6(3);...
+    l7(1)*l8(1),((l7(1)*l8(2))+(l7(2)*l8(1)))/2, l7(2)*l8(2),((l7(1)*l8(3))+(l7(3)*l8(2)))/2,((l7(2)*l8(3))+(l7(3)*l8(2)))/2,l7(3)*l8(3);...
+    l9(1)*l10(1),((l9(1)*l10(2))+(l9(2)*l10(1)))/2, l9(2)*l10(2),((l9(1)*l10(3))+(l9(3)*l10(2)))/2,((l9(2)*l10(3))+(l9(3)*l10(2)))/2,l9(3)*l10(3)];
+
+% we perform the null vector to obtain the conic C
+
+s= null(M);
+
+a= s(1); b= s(2); c= s(3); d= s(4); e= s(5); f= s(6);
+
+C= [a, b/2, d/2; b/2, c, e/2; d/2, e/2 ,f];
+
+% We apply SVD to obtain the rectifying homography
+
+[U,S,V]= svd(C);
+
+H = inv(U);
+
+I2=apply_H(I,H);
+
+figure;
+imshow(uint8(I2));
 
