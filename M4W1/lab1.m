@@ -311,12 +311,13 @@ K = chol(S); % --> upper triangular matrix K from the diagonal and upper triangl
 H = eye(3); % --> 3x3 identity matrix with ones on the main diagonal and zeros elsewhere
 K = inv(K); % --> inverse matrix
 H(1:2,1:2) = K;
+H = H';
 
 % --> transformed lines
-l1trans = H\l1;%inv(H')*l1;
-l2trans = H\l2;%inv(H')*l2;
-m1trans = H\m1;%inv(H')*m1;
-m2trans = H\m2;%inv(H')*m2;
+l1trans = H'\l1;%inv(H')*l1;
+l2trans = H'\l2;%inv(H')*l2;
+m1trans = H'\m1;%inv(H')*m1;
+m2trans = H'\m2;%inv(H')*m2;
 
 % --> VISUALIZE LINES
 % --> visualize original lines
@@ -523,12 +524,14 @@ K = chol(S); % --> upper triangular matrix K from the diagonal and upper triangl
 H = eye(3); % --> 3x3 identity matrix with ones on the main diagonal and zeros elsewhere
 K = inv(K); % --> inverse matrix
 H(1:2,1:2) = K;
+H = H';
 
 % --> transformed lines
-l1trans = H\l1;%inv(H')*l1;
-l2trans = H\l2;%inv(H')*l2;
-m1trans = H\m1;%inv(H')*m1;
-m2trans = H\m2;%inv(H')*m2;
+l1trans = H'\l1;%inv(H')*l1;
+l2trans = H'\l2;%inv(H')*l2;
+m1trans = H'\m1;%inv(H')*m1;
+m2trans = H'\m2;%inv(H')*m2;
+
 
 % --> VISUALIZE LINES
 % --> visualize original lines
