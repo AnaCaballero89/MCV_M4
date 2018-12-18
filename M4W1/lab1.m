@@ -693,16 +693,24 @@ s= null(M);
 
 a= s(1); b= s(2); c= s(3); d= s(4); e= s(5); f= s(6);
 
-C= [a, b/2, d/2; b/2, c, e/2; d/2, e/2 ,f];
+C = [a, b/2, d/2; b/2, c, e/2; d/2, e/2 ,f];
 
 % We apply SVD to obtain the rectifying homography
 
-[U,S,V]= svd(C);
+[U,D,V] = svd(C);
 
-H = inv(U);
+sqrtD = sqrt(D);
+
+A = U'*D*V;
+
+H = eye(3);
+
+H(1,1) = -A(1,1);
+H(1,2) = -A(1,2);
+H(2,1) = -A(2,1);
+H(2,2) = -A(2,2);
+
 
 I2=apply_H(I,H);
-
 figure;
 imshow(uint8(I2));
-
