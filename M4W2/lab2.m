@@ -68,7 +68,7 @@ plotmatches(imb, imc, points_b(1:2,:), points_c(1:2,:), matches_bc, 'Stacking', 
 th = 3;
 xab_a = [points_a(1:2, matches_ab(1,:)); ones(1, length(matches_ab))];
 xab_b = [points_b(1:2, matches_ab(2,:)); ones(1, length(matches_ab))];
-[Hab, inliers_ab] = ransac_homography_adaptive_loop(xab_a, xab_b, th, 1000); % ToDo: complete this function
+[Hab, inliers_ab] = ransac_homography_adaptive_loop(xab_a, xab_b, th, 1000); % ToDo: complete this function --> done
 
 figure;
 plotmatches(ima, imb, points_a(1:2,:), points_b(1:2,:), ...
@@ -92,9 +92,14 @@ vgg_gui_H(imbrgb, imcrgb, Hbc);
 %% 3. Build the mosaic
 
 corners = [-400 1200 -100 650];
-iwb = apply_H_v2(imbrgb, ?? , corners);   % ToDo: complete the call to the function
-iwa = apply_H_v2(imargb, ??, corners);    % ToDo: complete the call to the function
-iwc = apply_H_v2(imcrgb, ??, corners);    % ToDo: complete the call to the function
+H = eye(3);                             % --> done homography = 1 0 0; 0 1 0; 0 0 1
+iwb = apply_H_v2(imbrgb, H, corners);   % ToDo: complete the call to the function 
+
+H = Hab;                                % --> done Hab = ransac/homography2d(xab_a, xab_b)
+iwa = apply_H_v2(imargb, H, corners);   % ToDo: complete the call to the function 
+
+H = inv(Hbc);                           %  --> done Hbc = ransac/homography2d(xbc_b, xbc_c)
+iwc = apply_H_v2(imcrgb, H, corners);   % ToDo: complete the call to the function
 
 figure;
 imshow(max(iwc, max(iwb, iwa)));%image(max(iwc, max(iwb, iwa)));axis off;
