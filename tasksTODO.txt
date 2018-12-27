@@ -3,7 +3,7 @@ Session 2
 Mandatory tasks:
 • Function that estimates the homography with the normalized DLT
 algorithm given n ≥ 4 image correspondences.
-• Complete the RANSAC function and the lab2.m file. (DONE)
+• Complete the RANSAC function and the lab2.m file. (***DONE***)
 • Compute an image mosaic with four different sets of data; compare
 and comment the results (why it works or it does not work in the
 different cases).
