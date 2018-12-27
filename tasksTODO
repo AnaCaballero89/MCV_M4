@@ -1,0 +1,17 @@
+Session 2
+
+Mandatory tasks:
+• Function that estimates the homography with the normalized DLT
+algorithm given n ≥ 4 image correspondences.
+• Complete the RANSAC function and the lab2.m file. (DONE)
+• Compute an image mosaic with four different sets of data; compare
+and comment the results (why it works or it does not work in the
+different cases).
+• Estimation of the homogaphy with the Gold-Standard algorithm.
+
+
+Optional tasks:
+• Complete the code on camera calibration using a planar pattern and
+answer (in the report) two questions raised in the file lab2.m.
+• Detect a logo in an image.
+• Replace a logo in an image.
