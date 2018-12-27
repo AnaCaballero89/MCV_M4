@@ -42,7 +42,7 @@ function idx_inliers = compute_inliers(H, x1, x2, th)
     
 
     % compute the symmetric geometric error
-    d2 = % ToDo
+    d2 = l2_dist(euclid(x1)-euclid(inv(H)*x2))+l2_dist(euclid(x2)-euclid(H*x1)); %--> ToDo
     idx_inliers = find(d2 < th.^2);
 
 
