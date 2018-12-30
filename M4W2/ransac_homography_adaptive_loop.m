@@ -7,7 +7,7 @@ it = 0;
 best_inliers = [];
 while it < max_it
     
-    points = randomsample(Npoints, 4);
+    points = randomsample(Npoints, 4); % vales = 1..Npoints  =  ; number of samples = 4
     H = homography2d(x1(:,points), x2(:,points)); % ToDo: you have to create this function
     inliers = compute_inliers(H, x1, x2, th);
     
@@ -32,7 +32,7 @@ end
 H = homography2d(x1(:,best_inliers), x2(:,best_inliers));
 idx_inliers = best_inliers;
 
-
+    
 function idx_inliers = compute_inliers(H, x1, x2, th)
     % Check that H is invertible
     if abs(log(cond(H))) > 15
@@ -40,18 +40,12 @@ function idx_inliers = compute_inliers(H, x1, x2, th)
         return
     end
     
-    Hx1 = H*x1;
-    Hix2 = H\x2;
 
-    x1 = normalise(x1);
-    x2 = normalise(x2);     
-    Hx1 = normalise(Hx1);
-    Hix2 = normalise(Hix2); 
-    
-    d2 = sqrt(sum((euclid(x1)-euclid(Hx1)).^2)) + sqrt(sum((euclid(x2)-euclid(Hix2)).^2)); 
+    % compute the symmetric geometric error
+    d2 = l2_dist(euclid(x1)-euclid(inv(H)*x2))+l2_dist(euclid(x2)-euclid(H*x1)); %--> ToDo
     idx_inliers = find(d2 < th.^2);
 
-
+    
 function xn = normalise(x)    
     xn = x ./ repmat(x(end,:), size(x,1), 1);
 
