@@ -12,9 +12,9 @@ imargb = imread('Data/llanes/llanes_a.jpg');
 imbrgb = imread('Data/llanes/llanes_b.jpg');
 imcrgb = imread('Data/llanes/llanes_c.jpg');
 
-imargb = imread('Data/castle_int/0016_s.png');
-imbrgb = imread('Data/castle_int/0015_s.png');
-imcrgb = imread('Data/castle_int/0014_s.png');
+% imargb = imread('Data/castle_int/0016_s.png');
+% imbrgb = imread('Data/castle_int/0015_s.png');
+% imcrgb = imread('Data/castle_int/0014_s.png');
 
 % imargb = imread('Data/aerial/site13/frame00000.png');
 % imbrgb = imread('Data/aerial/site13/frame00002.png');
@@ -65,7 +65,7 @@ plotmatches(imb, imc, points_b(1:2,:), points_c(1:2,:), matches_bc, 'Stacking', 
 %% 2. Compute the homography (DLT algorithm) between image pairs
 
 %% Compute homography (normalized DLT) between a and b, play with the homography
-th = 3;
+th = 10;
 xab_a = [points_a(1:2, matches_ab(1,:)); ones(1, length(matches_ab))];
 xab_b = [points_b(1:2, matches_ab(2,:)); ones(1, length(matches_ab))];
 [Hab, inliers_ab] = ransac_homography_adaptive_loop(xab_a, xab_b, th, 1000); % ToDo: complete this function --> done

@@ -39,10 +39,16 @@ function idx_inliers = compute_inliers(H, x1, x2, th)
         idx_inliers = [];
         return
     end
-    
+    Hx1 = H*x1;
+    Hix2 = inv(H)*x2;
 
+    x1 = normalise(x1);
+    x2 = normalise(x2);     
+    Hx1 = normalise(Hx1);
+    Hix2 = normalise(Hix2); 
+     
     % compute the symmetric geometric error
-    d2 = l2_dist(euclid(x1)-euclid(inv(H)*x2))+l2_dist(euclid(x2)-euclid(H*x1)); %--> ToDo
+    d2 = sqrt(sum((x1-Hx1).^2)) + sqrt(sum((x2-Hix2).^2)); 
     idx_inliers = find(d2 < th.^2);
 
     
