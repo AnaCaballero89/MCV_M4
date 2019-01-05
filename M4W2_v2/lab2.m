@@ -106,6 +106,8 @@ imshow(max(iwc, max(iwb, iwa)));%image(max(iwc, max(iwb, iwa)));axis off;
 title('Mosaic A-B-C');
 
 % ToDo: compute the mosaic with castle_int images
+
+
 % ToDo: compute the mosaic with aerial images set 13
 % ToDo: compute the mosaic with aerial images set 22
 % ToDo: comment the results in every of the four cases: say why it works or
@@ -174,130 +176,176 @@ imshow(imbrgb);%image(imbrgb);
 hold on;
 plot(xp(1,:), xp(2,:),'+y');
 plot(xhatp(1,:), xhatp(2,:),'+c');
+%% Homography bc
+% ToDo: refine the homography bc with the Gold Standard algorithm
+x = points_b(1:2, matches_bc(1,inliers_bc));  % ToDo: set the non-homogeneous point coordinates of the --> done
+xp = points_c(1:2, matches_bc(2,inliers_bc));  % point correspondences we will refine with the geometric method --> done
+Xobs = [ x(:) ; xp(:) ];     % The column vector of observed values (x and x')
+P0 = [ Hbc(:) ; x(:) ];   
 
-% %%  Homography bc
-% 
-% % ToDo: refine the homography bc with the Gold Standard algorithm
-% 
-% 
-% %% See differences in the keypoint locations
-% 
-% % ToDo: compute the points xhat and xhatp which are the correspondences
-% % returned by the refinement with the Gold Standard algorithm
-% 
-% figure;
-% imshow(imbrgb);%image(imbrgb);
-% hold on;
-% plot(x(1,:), x(2,:),'+y');
-% plot(xhat(1,:), xhat(2,:),'+c');
-% 
-% figure;
-% imshow(imcrgb);%image(imcrgb);
-% hold on;
-% plot(xp(1,:), xp(2,:),'+y');
-% plot(xhatp(1,:), xhatp(2,:),'+c');
-% 
-% %% Build mosaic
-% corners = [-400 1200 -100 650];
-% iwb = apply_H_v2(imbrgb, ??, corners); % ToDo: complete the call to the function
-% iwa = apply_H_v2(imargb, ??, corners); % ToDo: complete the call to the function
-% iwc = apply_H_v2(imcrgb, ??, corners); % ToDo: complete the call to the function
-% 
-% figure;
-% imshow(max(iwc, max(iwb, iwa)));%image(max(iwc, max(iwb, iwa)));axis off;
-% title('Mosaic A-B-C');
+Y_initial = gs_errfunction( P0, Xobs ); % ToDo: create this function that we need to pass to the lsqnonlin function
+% NOTE: gs_errfunction should return E(X) and not the sum-of-squares E=sum(E(X).^2)) that we want to minimize. 
+% (E(X) is summed and squared implicitly in the lsqnonlin algorithm.) 
+
+err_initial = sum( sum( Y_initial.^2 ));
+
+options = optimset('Algorithm', 'levenberg-marquardt');
+P = lsqnonlin(@(t) gs_errfunction(t, Xobs), P0, [], [], options);
+
+Hbc_r = reshape( P(1:9), 3, 3 );
+f = gs_errfunction( P, Xobs ); % lsqnonlin does not return f
+err_final = sum( sum( f.^2 ));
+
+% we show the geometric error before and after the refinement
+fprintf(1, 'Gold standard reproj error initial %f, final %f\n', err_initial, err_final);
+
+%% See differences in the keypoint locations
+
+% ToDo: compute the points xhat and xhatp which are the correspondences
+% returned by the refinement with the Gold Standard algorithm
+
+figure;
+imshow(imbrgb);%image(imbrgb);
+hold on;
+plot(x(1,:), x(2,:),'+y');
+plot(xhat(1,:), xhat(2,:),'+c');
+
+figure;
+imshow(imcrgb);%image(imcrgb);
+hold on;
+plot(xp(1,:), xp(2,:),'+y');
+plot(xhatp(1,:), xhatp(2,:),'+c');
+
+%% Build mosaic
+
+corners = [-400 1200 -100 650];
+H = eye(3);                             
+iwb = apply_H_v2(imbrgb, H, corners);   
+H = Hab_r;                               
+iwa = apply_H_v2(imargb, H, corners);   
+H = inv(Hbc_r);                           
+iwc = apply_H_v2(imcrgb, H, corners);  
+figure;
+imshow(max(iwc, max(iwb, iwa)));%image(max(iwc, max(iwb, iwa)));axis off;
+title('Mosaic A-B-C');
+
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %% 5. OPTIONAL: Calibration with a planar pattern
+%% 5. OPTIONAL: Calibration with a planar pattern
+ 
+clear all;
+ 
+%% Read template and images.
+T     = imread('Data/calib/template.jpg');
+I{1}  = imread('Data/calib/graffiti1.tif');
+I{2}  = imread('Data/calib/graffiti2.tif');
+I{3}  = imread('Data/calib/graffiti3.tif');
+%I{4}  = imread('Data/calib/graffiti4.tif');
+%I{5}  = imread('Data/calib/graffiti5.tif');
+Tg = sum(double(T), 3) / 3 / 255;
+Ig{1} = sum(double(I{1}), 3) / 3 / 255;
+Ig{2} = sum(double(I{2}), 3) / 3 / 255;
+Ig{3} = sum(double(I{3}), 3) / 3 / 255;
+
+N = length(I);
+
+%% Compute keypoints.
+fprintf('Computing sift points in template... ');
+[pointsT, descrT] = sift(Tg, 'Threshold', 0.05);
+fprintf(' done\n');
+
+points = cell(N,1);
+descr = cell(N,1);
+for i = 1:N
+    fprintf('Computing sift points in image %d... ', i);
+    [points{i}, descr{i}] = sift(Ig{i}, 'Threshold', 0.05);
+    fprintf(' done\n');
+end
+
+%% Match and compute homographies.
+H = cell(N,1);
+for i = 1:N
+    % Match against template descriptors.
+    fprintf('Matching image %d... ', i);
+    matches = siftmatch(descrT, descr{i});
+    fprintf('done\n');
+
+    % Fit homography and remove outliers.
+    x1 = pointsT(1:2, matches(1, :));
+    x2 = points{i}(1:2, matches(2, :));
+    H{i} = 0;
+    [H{i}, inliers] =  ransac_homography_adaptive_loop(homog(x1), homog(x2), 3, 1000);
+
+    % Plot inliers.
+    figure;
+    plotmatches(Tg, Ig{i}, pointsT(1:2,:), points{i}(1:2,:), matches(:, inliers));
+
+    % Play with the homography
+    %vgg_gui_H(T, I{i}, H{i});
+end
+
+%% Compute the Image of the Absolute Conic
 % 
-% clear all;
-% 
-% %% Read template and images.
-% T     = imread('Data/calib/template.jpg');
-% I{1}  = imread('Data/calib/graffiti1.tif');
-% I{2}  = imread('Data/calib/graffiti2.tif');
-% I{3}  = imread('Data/calib/graffiti3.tif');
-% %I{4}  = imread('Data/calib/graffiti4.tif');
-% %I{5}  = imread('Data/calib/graffiti5.tif');
-% Tg = sum(double(T), 3) / 3 / 255;
-% Ig{1} = sum(double(I{1}), 3) / 3 / 255;
-% Ig{2} = sum(double(I{2}), 3) / 3 / 255;
-% Ig{3} = sum(double(I{3}), 3) / 3 / 255;
-% 
-% N = length(I);
-% 
-% %% Compute keypoints.
-% fprintf('Computing sift points in template... ');
-% [pointsT, descrT] = sift(Tg, 'Threshold', 0.05);
-% fprintf(' done\n');
-% 
-% points = cell(N,1);
-% descr = cell(N,1);
-% for i = 1:N
-%     fprintf('Computing sift points in image %d... ', i);
-%     [points{i}, descr{i}] = sift(Ig{i}, 'Threshold', 0.05);
-%     fprintf(' done\n');
-% end
-% 
-% %% Match and compute homographies.
-% H = cell(N,1);
-% for i = 1:N
-%     % Match against template descriptors.
-%     fprintf('Matching image %d... ', i);
-%     matches = siftmatch(descrT, descr{i});
-%     fprintf('done\n');
-% 
-%     % Fit homography and remove outliers.
-%     x1 = pointsT(1:2, matches(1, :));
-%     x2 = points{i}(1:2, matches(2, :));
-%     H{i} = 0;
-%     [H{i}, inliers] =  ransac_homography_adaptive_loop(homog(x1), homog(x2), 3, 1000);
-% 
-%     % Plot inliers.
-%     figure;
-%     plotmatches(Tg, Ig{i}, pointsT(1:2,:), points{i}(1:2,:), matches(:, inliers));
-% 
-%     % Play with the homography
-%     %vgg_gui_H(T, I{i}, H{i});
-% end
-% 
-% %% Compute the Image of the Absolute Conic
-% 
-% w = ... % ToDo
-%  
-% %% Recover the camera calibration.
-% 
-% K = ... % ToDo
-%     
-% % ToDo: in the report make some comments related to the obtained internal
-% %       camera parameters and also comment their relation to the image size
-% 
-% %% Compute camera position and orientation.
-% R = cell(N,1);
-% t = cell(N,1);
-% P = cell(N,1);
-% figure;hold;
-% for i = 1:N
-%     % ToDo: compute r1, r2, and t{i}
-%     r1 = ...
-%     r2 = ...
-%     t{i} = ...
-%     
-%     % Solve the scale ambiguity by forcing r1 and r2 to be unit vectors.
-%     s = sqrt(norm(r1) * norm(r2)) * sign(t{i}(3));
-%     r1 = r1 / s;
-%     r2 = r2 / s;
-%     t{i} = t{i} / s;
-%     R{i} = [r1, r2, cross(r1,r2)];
-%     
-%     % Ensure R is a rotation matrix
-%     [U S V] = svd(R{i});
-%     R{i} = U * eye(3) * V';
-%    
-%     P{i} = K * [R{i} t{i}];
-%     plot_camera(P{i}, 800, 600, 200);
-% end
-% 
+
+for i = 1:N
+    h = H{i};
+    A(2*i - 1,:) = [h(1,1) * h(1,2), ...
+                    h(1,1) * h(2,2) + h(2,1) * h(1,2), ...
+                    h(1,1) * h(3,2) + h(3,1) * h(1,2), ...
+                    h(2,1) * h(2,2), ...
+                    h(2,1) * h(3,2) + h(3,1) * h(2,2), ...
+                    h(3,1) * h(3,2)];
+    A(2*i,:) = [h(1,1) * h(1,1), ...
+                h(1,1) * h(2,1) + h(2,1) * h(1,1), ...
+                h(1,1) * h(3,1) + h(3,1) * h(1,1) , ...
+                h(2,1) * h(2,1), ...
+                h(2,1) * h(3,1) + h(3,1) * h(2,1), ...
+                h(3,1) * h(3,1)] ...
+                -  [h(1,2) * h(1,2), ...
+                h(1,2) * h(2,2) + h(2,2) * h(1,2), ...
+                h(1,2) * h(3,2) + h(3,2) * h(1,2), ...
+                h(2,2) * h(2,2), ...
+                h(2,2) * h(3,2) + h(3,2) * h(2,2), ...
+                h(3,2) * h(3,2)];
+end
+[U,S,V]=svd(A);
+
+w=[V(1,end),V(2,end),V(3,end);
+   V(2,end),V(4,end),V(5,end);
+   V(3,end),V(5,end),V(6,end)];
+ 
+%% Recover the camera calibration.
+
+K = inv(chol(w)); 
+% ToDo: in the report make some comments related to the obtained internal
+%       camera parameters and also comment their relation to the image size
+
+%% Compute camera position and orientation.
+R = cell(N,1);
+t = cell(N,1);
+P = cell(N,1);
+figure;hold;
+for i = 1:N
+    % ToDo: compute r1, r2, and t{i}
+    r1 = inv(K)*h(:,1)/sqrt( sum( (inv(K)*h(:,1)).^2 ) );
+    r2 = inv(K)*h(:,2)/sqrt( sum( (inv(K)*h(:,2)).^2 ) );
+    t{i} = inv(K)*h(:,3)/sqrt( sum( (inv(K)*h(:,1)).^2 ) );
+    
+    % Solve the scale ambiguity by forcing r1 and r2 to be unit vectors.
+    s = sqrt(norm(r1) * norm(r2)) * sign(t{i}(3));
+    r1 = r1 / s;
+    r2 = r2 / s;
+    t{i} = t{i} / s;
+    R{i} = [r1, r2, cross(r1,r2)];
+    
+    % Ensure R is a rotation matrix
+    [U S V] = svd(R{i});
+    R{i} = U * eye(3) * V';
+   
+    P{i} = K * [R{i} t{i}];
+    plot_camera(P{i}, 800, 600, 200);
+end
+
 % % ToDo: in the report explain how the optical center is computed in the
 % %       provided code
 % 
@@ -319,9 +367,9 @@ plot(xhatp(1,:), xhatp(2,:),'+c');
 % % ToDo: complete the call to the following function with the proper
 % %       coordinates of the image corners in the new reference system
 % for i = 1:N
-%     vgg_scatter_plot( [...   ...   ...   ...   ...], 'r');
+%     vgg_scatter_plot( R{i}*[p1+t{i} p2+t{i} p3+t{i} p4+t{i} p1+t{i}], 'r');
 % end
-% 
+% % 
 % %% Augmented reality: Plot some 3D points on every camera.
 % [Th, Tw] = size(Tg);
 % cube = [0 0 0; 1 0 0; 1 0 0; 1 1 0; 1 1 0; 0 1 0; 0 1 0; 0 0 0; 0 0 1; 1 0 1; 1 0 1; 1 1 1; 1 1 1; 0 1 1; 0 1 1; 0 0 1; 0 0 0; 1 0 0; 1 0 0; 1 0 1; 1 0 1; 0 0 1; 0 0 1; 0 0 0; 0 1 0; 1 1 0; 1 1 0; 1 1 1; 1 1 1; 0 1 1; 0 1 1; 0 1 0; 0 0 0; 0 1 0; 0 1 0; 0 1 1; 0 1 1; 0 0 1; 0 0 1; 0 0 0; 1 0 0; 1 1 0; 1 1 0; 1 1 1; 1 1 1; 1 0 1; 1 0 1; 1 0 0 ]';
@@ -335,9 +383,9 @@ plot(xhatp(1,:), xhatp(2,:),'+c');
 %     x = euclid(P{i} * homog(X));
 %     vgg_scatter_plot(x, 'g');
 % end
-% 
-% 
-% 
+
+
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %% 6. OPTIONAL: Detect the UPF logo in the two UPF images using the 
 % %%              DLT algorithm (folder "logos").
