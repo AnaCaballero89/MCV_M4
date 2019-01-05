@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Lab 2: Image mosaics
+% Lab 2: Image mosaics
 
 addpath('sift');
 
@@ -112,69 +112,69 @@ title('Mosaic A-B-C');
 %       does not work
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %% 4. Refine the homography with the Gold Standard algorithm
-% 
-% % Homography ab
-% 
-% x = points_a(1:2, matches_ab(1,inliers_ab));  % ToDo: set the non-homogeneous point coordinates of the --> done
-% xp = points_b(1:2, matches_ab(2,inliers_ab));  % point correspondences we will refine with the geometric method --> done
-% Xobs = [ x(:) ; xp(:) ];     % The column vector of observed values (x and x')
-% P0 = [ Hab(:) ; x(:) ];      % The parameters or independent variables
-% 
-% Y_initial = gs_errfunction( P0, Xobs ); % ToDo: create this function that we need to pass to the lsqnonlin function
-% % NOTE: gs_errfunction should return E(X) and not the sum-of-squares E=sum(E(X).^2)) that we want to minimize. 
-% % (E(X) is summed and squared implicitly in the lsqnonlin algorithm.) 
-% % ====================================
-% % ===== FALTA, NO HOTINC CLAR ========
-% % ====================================
-% err_initial = sum( sum( Y_initial.^2 ));
-% 
-% options = optimset('Algorithm', 'levenberg-marquardt');
-% P = lsqnonlin(@(t) gs_errfunction(t, Xobs), P0, [], [], options);
-% 
-% Hab_r = reshape( P(1:9), 3, 3 );
-% f = gs_errfunction( P, Xobs ); % lsqnonlin does not return f
-% err_final = sum( sum( f.^2 ));
-% 
-% % we show the geometric error before and after the refinement
-% fprintf(1, 'Gold standard reproj error initial %f, final %f\n', err_initial, err_final);
-% 
-% %% See differences in the keypoint locations
-% 
-% % ToDo: compute the points xhat and xhatp which are the correspondences
-% % returned by the refinement with the Gold Standard algorithm --> done 
-% % --> new part upt to: figure imshow(imargb)
-% 
-% xhat = P(9+1:end);
-% xhat = reshape(xhat, [2,size(xhat,1)/2]); 
-% % --> euclidean to homogeneous coordinates
-% xhat = [xhat ; ones(1,size(xhat,2))]; 
-% xhatp = Hab_r*xhat;
-% 
-% % --> euclidean coordinates from homogeneous
-% xh = xhat;
-% aux = size(xh, 1) - 1;
-% xhat = xh(1:aux,:) ./ repmat(xh(end,:), aux, 1);
-% 
-% % --> euclidean coordinates from homogeneous
-% xh = xhatp;
-% aux = size(xh, 1) - 1;
-% xhatp = xh(1:aux,:) ./ repmat(xh(end,:), aux, 1);
-% 
-% 
-% 
-% figure;
-% imshow(imargb);%image(imargb);
-% hold on;
-% plot(x(1,:), x(2,:),'+y');
-% plot(xhat(1,:), xhat(2,:),'+c');
-% 
-% figure;
-% imshow(imbrgb);%image(imbrgb);
-% hold on;
-% plot(xp(1,:), xp(2,:),'+y');
-% plot(xhatp(1,:), xhatp(2,:),'+c');
-% 
+%% 4. Refine the homography with the Gold Standard algorithm
+close all;
+% Homography ab
+
+x = points_a(1:2, matches_ab(1,inliers_ab));  % ToDo: set the non-homogeneous point coordinates of the --> done
+xp = points_b(1:2, matches_ab(2,inliers_ab));  % point correspondences we will refine with the geometric method --> done
+Xobs = [ x(:) ; xp(:) ];     % The column vector of observed values (x and x')
+P0 = [ Hab(:) ; x(:) ];      % The parameters or independent variables
+
+ Y_initial = gs_errfunction( P0, Xobs ); % ToDo: create this function that we need to pass to the lsqnonlin function
+% NOTE: gs_errfunction should return E(X) and not the sum-of-squares E=sum(E(X).^2)) that we want to minimize. 
+% (E(X) is summed and squared implicitly in the lsqnonlin algorithm.) 
+% ====================================
+% ===== FALTA, NO HOTINC CLAR ========
+% ====================================
+err_initial = sum( sum( Y_initial.^2 ));
+
+options = optimset('Algorithm', 'levenberg-marquardt');
+P = lsqnonlin(@(t) gs_errfunction(t, Xobs), P0, [], [], options);
+ 
+Hab_r = reshape( P(1:9), 3, 3 );
+f = gs_errfunction( P, Xobs ); % lsqnonlin does not return f
+err_final = sum( sum( f.^2 ));
+
+% we show the geometric error before and after the refinement
+fprintf(1, 'Gold standard reproj error initial %f, final %f\n', err_initial, err_final);
+
+%% See differences in the keypoint locations
+
+% ToDo: compute the points xhat and xhatp which are the correspondences
+% returned by the refinement with the Gold Standard algorithm --> done 
+% --> new part upt to: figure imshow(imargb)
+
+xhat = P(10:end);
+xhat = reshape(xhat, [2,size(xhat,1)/2]); 
+% --> euclidean to homogeneous coordinates
+xhat = [xhat ; ones(1,size(xhat,2))]; 
+xhatp = Hab_r*xhat;
+
+% --> euclidean coordinates from homogeneous
+xh = xhat;
+aux = size(xh, 1) - 1;
+xhat = xh(1:aux,:) ./ repmat(xh(end,:), aux, 1);
+
+% --> euclidean coordinates from homogeneous
+xh = xhatp;
+aux = size(xh, 1) - 1;
+xhatp = xh(1:aux,:) ./ repmat(xh(end,:), aux, 1);
+
+
+
+figure;
+imshow(imargb);%image(imargb);
+hold on;
+plot(x(1,:), x(2,:),'+y');
+plot(xhat(1,:), xhat(2,:),'+c');
+
+figure;
+imshow(imbrgb);%image(imbrgb);
+hold on;
+plot(xp(1,:), xp(2,:),'+y');
+plot(xhatp(1,:), xhatp(2,:),'+c');
+
 % %%  Homography bc
 % 
 % % ToDo: refine the homography bc with the Gold Standard algorithm
