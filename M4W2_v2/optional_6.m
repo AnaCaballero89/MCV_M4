@@ -66,4 +66,4 @@ imshow(iwb);
 hold on;
 rectangle('Position', [thisBB(1),thisBB(2),thisBB(3),thisBB(4)],...
   'EdgeColor','g','LineWidth',2 )
-title('Mosaic A-B-C');
+title('Logo detection');
