@@ -1,6 +1,7 @@
 function [F, idx_inliers] = ransac_fundamental_matrix (x1, x2, th, max_it)
 
 [Ncoords, Npoints] = size(x1);
+max_it=1000;
 
 % ransac
 it = 0;
@@ -38,7 +39,8 @@ function idx_inliers = compute_inliers(F, x1, x2, th)
     
     % To compute the inliers we use the assumption that two correspondences 
     % x and x' in two images, I and I', must comply that x'* F * x = 0.
-
+    x1 = x1 ./ repmat(x1(end,:), size(x1,1), 1); % normalise x1;
+    x2 = x2 ./ repmat(x2(end,:), size(x2,1), 1);% normalise x2;
     x2Fx1 = zeros(1,length(x1));
     
     for k = lentgh(x1)

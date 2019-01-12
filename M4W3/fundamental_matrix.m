@@ -2,7 +2,7 @@ function [ F ] = fundamental_matrix(x1_test, x2_test)
 % Computation of the Fundamental Matrix with 8 points or more.
 %   Detailed explanation goes here
 
-numb=size(x1_test,2); 
+%numb=size(x1_test,2); 
 
 %normalization of the points by the function provided 
 
@@ -10,9 +10,17 @@ numb=size(x1_test,2);
 [x2_norm, T2] = normalise2dpts(x2_test);
 
 %Compute linear combination of the matches such as W*f=0
-W=[x1_norm(1,:)'.* x2_norm(1,:)', x1_norm(2,:)'.* x2_norm(1,:)',...
-   x2_norm(1,:)', x1_norm(1,:)'.* x2_norm(2,:)',x2_norm(2,:)',... 
-   x1_norm(1,:)', x1_norm(2,:)',ones(1,numb)'];
+    x1 = x1_norm(1,:)';
+    y1 = x1_norm(2,:)';
+   
+    x2 = x2_norm(1,:)';
+    y2 = x2_norm(2,:)';
+
+    W = [x2.*x1 x2.*y1 x2 y2.*x1 y2.*y1 y2 x1 y1 ones(size(x1,1),1)];
+%W=[x1_norm(1,:)'.* x2_norm(1,:)', x1_norm(2,:)'.* x2_norm(1,:)',...
+ %  x2_norm(1,:)', x1_norm(1,:)'.* x2_norm(2,:)',x2_norm(2,:)',... 
+  % x1_norm(1,:)', x1_norm(2,:)',ones(1,numb)'];
+
 
 % Compute SVD, and f will be the last column of V
 [~,~,V]=svd(W);
