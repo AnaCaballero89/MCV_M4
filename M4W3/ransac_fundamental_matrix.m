@@ -43,7 +43,7 @@ function idx_inliers = compute_inliers(F, x1, x2, th)
     x2 = x2 ./ repmat(x2(end,:), size(x2,1), 1);% normalise x2;
     x2Fx1 = zeros(1,length(x1));
     
-    for k = lentgh(x1)
+    for k = length(x1)
         x2Fx1(k)= x2(:,k)'*F*x1(:,k);
     end
     
