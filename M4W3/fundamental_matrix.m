@@ -2,7 +2,7 @@ function [ F ] = fundamental_matrix(x1_test, x2_test)
 % Computation of the Fundamental Matrix with 8 points or more.
 %   Detailed explanation goes here
 
-%numb=size(x1_test,2); 
+numb=size(x1_test,2); 
 
 %normalization of the points by the function provided 
 
@@ -16,19 +16,16 @@ function [ F ] = fundamental_matrix(x1_test, x2_test)
     x2 = x2_norm(1,:)';
     y2 = x2_norm(2,:)';
 
-    W = [x2.*x1 x2.*y1 x2 y2.*x1 y2.*y1 y2 x1 y1 ones(size(x1,1),1)];
-%W=[x1_norm(1,:)'.* x2_norm(1,:)', x1_norm(2,:)'.* x2_norm(1,:)',...
- %  x2_norm(1,:)', x1_norm(1,:)'.* x2_norm(2,:)',x2_norm(2,:)',... 
-  % x1_norm(1,:)', x1_norm(2,:)',ones(1,numb)'];
+W= [x2.*x1 x2.*y1 x2 y2.*x1 y2.*y1 y2 x1 y1 ones(size(x1,1),1)];
 
 
 % Compute SVD, and f will be the last column of V
-[~,~,V]=svd(W);
+[~,~,V]=svd(W,0);
 
 % Compose F 
-F=[V(1,end),V(2,end),V(3,end);
-   V(2,end),V(4,end),V(5,end);
-   V(3,end),V(5,end),V(6,end)];
+F=[V(1,end),V(4,end),V(7,end);
+   V(2,end),V(5,end),V(8,end);
+   V(3,end),V(6,end),V(9,end)];
 
 % Compute again the SVD of F and force F to be of rank 2, so D has a zero in
 
