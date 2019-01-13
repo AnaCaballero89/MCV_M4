@@ -23,9 +23,9 @@ W= [x2.*x1 x2.*y1 x2 y2.*x1 y2.*y1 y2 x1 y1 ones(size(x1,1),1)];
 [~,~,V]=svd(W,0);
 
 % Compose F 
-F=[V(1,end),V(4,end),V(7,end);
-   V(2,end),V(5,end),V(8,end);
-   V(3,end),V(6,end),V(9,end)];
+F=[V(1,end),V(2,end),V(3,end);
+   V(4,end),V(5,end),V(6,end);
+   V(7,end),V(8,end),V(9,end)];
 
 % Compute again the SVD of F and force F to be of rank 2, so D has a zero in
 

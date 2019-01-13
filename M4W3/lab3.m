@@ -78,7 +78,9 @@ vgg_gui_F(im1rgb, im2rgb, F');
 % p1 and p2 contain the homogeneous coordinates of the matches
 % F is the FundamentalMatrix from all the inliers
 l2 = F*p1; % epipolar lines in image 2 % ToDo
-l1 = F*p2; % epipolar lines in image 1 % ToDo
+l1 = F'*p2; % MAGIA?¿   % epipolar lines in image 1 % ToDo
+% l2 = F*p1; % epipolar lines in image 2 % ToDo
+% l1 = F*p2; % epipolar lines in image 1 % ToDo
 
 % choose three random indices
 m1 = inliers(10);
@@ -86,6 +88,8 @@ m2 = inliers(20);
 m3 = inliers(30);
 
 % image 1 (plot the three points and their corresponding epipolar lines)
+close all;
+
 figure;
 imshow(im1rgb);
 hold on;
@@ -111,7 +115,7 @@ plot_homog_line(l2(:, m2));
 plot(p2(1, m3), p2(2, m3), '+g');
 plot_homog_line(l2(:, m3));
 
-
+display('OK')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %% 3. Photo-sequencing with aerial images
 % 
@@ -227,37 +231,37 @@ plot_homog_line(l2(:, m3));
 % %     Photo-sequencing paper with a selection of the detected dynamic
 % %     features. You may reuse the code generated for the previous question.
 % %
-% % ====== PG 4 PhotoSequencing_IJCV2014.pdf =====
-% 1: [ f1, f2] ? Match(I1,I2);
-matches = matchOpcional(imread('Data/im1.jpg'), imread('Data/im2.jpg'));
-% 2: [ fD1 , fS1 , fD2 , fS2 ] = Classify_Dyn_Stat_Ref( f1, f2)
-% --> pendiente ejercicio 3
-% 3: for each Ik and k = 3 to N do
-N=6;
-for k = N-2    
-    % 4: [ f1, fk ] ? Match(I1,Ik );
-    [matches, p1, p2] = matchOpcional(imread('Data/im1.jpg'), imread(strcat('Data/im',int2str(K+2),'.jpg')));
-    % 5: [ fDk , fSk ] = Classify_Dyn_Stat( fS1 , fD1 , fk )
-    ... % --> pendiente ejercicio 3
-    % 6: Fk =ComputeFundamentalMat( fS1 , fSk ).
-    [F, inliers] = ransac_fundamental_matrix(p1, p2, 2.0); 
-% 7: end for
-end
-% 8: for each dynamic feature df ? f1 do
-for df =...; %No se de donde sale;
-    % 9: l = p1 x p2 (l =img line)
-    l= p1 * p2;
-    % 10: for each pk (tk ) ? Si do 
-    for pk =...;
-        % 11: lk=  Fk * pk (l =img line)   
-        lk= ...*pk;
-        % 12: pk(tk ) = l x lk (pk is the intersection point)
-        pk = l*lk;
-        % 13: ?k ? ComputeAlpha(pl p2, p(tk ))
-        a = ComputeAlpha(pl p2, pk );
-    % 14: end for
-    end
-    % 15: ?i ? sort(?k)
-    o = sort(a);
-% 16: end for
-end 
+% % % ====== PG 4 PhotoSequencing_IJCV2014.pdf =====
+% % 1: [ f1, f2] ? Match(I1,I2);
+% matches = matchOpcional(imread('Data/im1.jpg'), imread('Data/im2.jpg'));
+% % 2: [ fD1 , fS1 , fD2 , fS2 ] = Classify_Dyn_Stat_Ref( f1, f2)
+% % --> pendiente ejercicio 3
+% % 3: for each Ik and k = 3 to N do
+% N=6;
+% for k = N-2    
+%     % 4: [ f1, fk ] ? Match(I1,Ik );
+%     [matches, p1, p2] = matchOpcional(imread('Data/im1.jpg'), imread(strcat('Data/im',int2str(K+2),'.jpg')));
+%     % 5: [ fDk , fSk ] = Classify_Dyn_Stat( fS1 , fD1 , fk )
+%     ... % --> pendiente ejercicio 3
+%     % 6: Fk =ComputeFundamentalMat( fS1 , fSk ).
+%     [F, inliers] = ransac_fundamental_matrix(p1, p2, 2.0); 
+% % 7: end for
+% end
+% % 8: for each dynamic feature df ? f1 do
+% for df =...; %No se de donde sale;
+%     % 9: l = p1 x p2 (l =img line)
+%     l= p1 * p2;
+%     % 10: for each pk (tk ) ? Si do 
+%     for pk =...;
+%         % 11: lk=  Fk * pk (l =img line)   
+%         lk= ...*pk;
+%         % 12: pk(tk ) = l x lk (pk is the intersection point)
+%         pk = l*lk;
+%         % 13: ?k ? ComputeAlpha(pl p2, p(tk ))
+%         a = ComputeAlpha(pl p2, pk );
+%     % 14: end for
+%     end
+%     % 15: ?i ? sort(?k)
+%     o = sort(a);
+% % 16: end for
+% end 
