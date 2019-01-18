@@ -2,7 +2,7 @@
 %% Lab 4: Reconstruction from two views (knowing internal camera parameters) 
 
 
-addpath('sift'); % ToDo: change 'sift' to the correct path where you have the sift functions
+addpath('../M4W2/sift'); % ToDo: change 'sift' to the correct path where you have the sift functions
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 1. Triangulation
@@ -68,7 +68,7 @@ plotmatches(I{1}, I{2}, points{1}, points{2}, matches, 'Stacking', 'v');
 %% Fit Fundamental matrix and remove outliers.
 x1 = points{1}(:, matches(1, :));
 x2 = points{2}(:, matches(2, :));
-[F, inliers] = ransac_fundamental_matrix(homog(x1), homog(x2), 2.0);
+[F, inliers] = ransac_fundamental_matrix([x1; ones(1, size(x1, 2))], [x2; ones(1, size(x2, 2))], 2.0);
 
 % Plot inliers.
 inlier_matches = matches(:, inliers);
@@ -179,201 +179,201 @@ n_points = size(x1,2);
 meanError = (total_errorProjected/(n_points*2))
 line([meanError meanError], ylim, 'Color','r');
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 3. Depth map computation with local methods (SSD)
-
-% Data images: 'scene1.row3.col3.ppm','scene1.row3.col4.ppm'
-% Disparity ground truth: 'truedisp.row3.col3.pgm'
-
-% Write a function called 'stereo_computation' that computes the disparity
-% between a pair of rectified images using a local method based on a matching cost 
-% between two local windows.
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% 3. Depth map computation with local methods (SSD)
 % 
-% The input parameters are 5:
-% - left image
-% - right image
-% - minimum disparity
-% - maximum disparity
-% - window size (e.g. a value of 3 indicates a 3x3 window)
-% - matching cost (the user may able to choose between SSD and NCC costs)
-%
-% In this part we ask to implement only the SSD cost
-%
-% Evaluate the results changing the window size (e.g. 3x3, 9x9, 20x20,
-% 30x30) and the matching cost. Comment the results.
-%
-% Note 1: Use grayscale images
-% Note 2: For this first set of images use 0 as minimum disparity 
-% and 16 as the the maximum one.
-
-leftImg = rgb2gray(imread('Data/scene1.row3.col3.ppm'));
-rightImg = rgb2gray(imread('Data/scene1.row3.col4.ppm'));
-%gt = imread('Data/truedisp.row3.col3.pgm');
-minDisp = 0;  % minimum disparity; Note 1
-maxDisp = 16; % maximum disparity; Note 2
-mc = 'SSD';   % matching cost
-
-ws = 3;      % window size 
-disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-
-ws = 9;      % window size 
-disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-
-ws = 20;      % window size 
-disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-
-ws = 30;      % window size 
-disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 4. Depth map computation with local methods (NCC)
-
-% Complete the previous function by adding the implementation of the NCC
-% cost.
-%
-% Evaluate the results changing the window size (e.g. 3x3, 9x9, 20x20,
-% 30x30) and the matching cost. Comment the results.
-
+% % Data images: 'scene1.row3.col3.ppm','scene1.row3.col4.ppm'
+% % Disparity ground truth: 'truedisp.row3.col3.pgm'
+% 
+% % Write a function called 'stereo_computation' that computes the disparity
+% % between a pair of rectified images using a local method based on a matching cost 
+% % between two local windows.
+% % 
+% % The input parameters are 5:
+% % - left image
+% % - right image
+% % - minimum disparity
+% % - maximum disparity
+% % - window size (e.g. a value of 3 indicates a 3x3 window)
+% % - matching cost (the user may able to choose between SSD and NCC costs)
+% %
+% % In this part we ask to implement only the SSD cost
+% %
+% % Evaluate the results changing the window size (e.g. 3x3, 9x9, 20x20,
+% % 30x30) and the matching cost. Comment the results.
+% %
+% % Note 1: Use grayscale images
+% % Note 2: For this first set of images use 0 as minimum disparity 
+% % and 16 as the the maximum one.
+% 
 % leftImg = rgb2gray(imread('Data/scene1.row3.col3.ppm'));
 % rightImg = rgb2gray(imread('Data/scene1.row3.col4.ppm'));
-% gt = imread('Data/truedisp.row3.col3.pgm');
-% min_disp = 0;
-% max_disp = 16;
-mc = 'NCC';
-
-ws = 3;      % window size 
-disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-
-ws = 9;      % window size 
-disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-
-ws = 20;      % window size 
-disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-
-ws = 30;      % window size 
-disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 5. Depth map computation with local methods
-
-% Data images: '0001_rectified_s.png','0002_rectified_s.png'
-
-% Test the functions implemented in the previous section with the facade
-% images. Try different matching costs and window sizes and comment the
-% results.
-% Notice that in this new data the minimum and maximum disparities may
-% change.
-leftImg = rgb2gray(imread('Data/0001_rectified_s.png'));
-rightImg = rgb2gray(imread('Data/0002_rectified_s.png'));
-minDisp = 0;  % minimum disparity; Note 1
-maxDisp = 16; % maximum disparity; Note 2
-
-mc = 'SSD';   % matching cost
-
-ws = 3;      % window size 
-disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-
-ws = 9;      % window size 
-disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-
-ws = 20;      % window size 
-disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-
-ws = 30;      % window size 
-disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-
-mc = 'NCC';
-
-ws = 3;      % window size 
-disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-
-ws = 9;      % window size 
-disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-
-ws = 20;      % window size 
-disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-
-ws = 30;      % window size 
-disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 6. Bilateral weights
-
-% Modify the 'stereo_computation' so that you can use bilateral weights (or
-% adaptive support weights) in the matching cost of two windows.
-% Reference paper: Yoon and Kweon, "Adaptive Support-Weight Approach for Correspondence Search", IEEE PAMI 2006
-%
-% Comment the results and compare them to the previous results (no weights).
-%
-% Note: Use grayscale images (the paper uses color images)
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% OPTIONAL:  7. Stereo computation with Belief Propagation
-
-% Use the UGM library used in module 2 and implement a  
-% stereo computation method that minimizes a simple stereo energy with 
-% belief propagation. 
-% For example, use an L2 or L1 pixel-based data term (SSD or SAD) and 
-% the same regularization term you used in module 2. 
-% Or pick a stereo paper (based on belief propagation) from the literature 
-% and implement it. Pick a simple method or just simplify the method they propose.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% OPTIONAL:  8. Depth computation with Plane Sweeping
-
-% Implement the plane sweeping method explained in class.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% OPTIONAL:  9. Depth map fusion 
-
-% In this task you are asked to implement the depth map fusion method
-% presented in the following paper:
-% B. Curless and M. Levoy. A Volumetric Method for Building Complex
-% Models from Range Images. In Proc. SIGGRAPH, 1996.
-%
-% 1. Use the set of facade images 00xx_s.png to compute depth maps 
-% corresponding to different views (and optionally from different pairs of 
-% images for the same view).
-% 2. Then convert each depth map to a signed distance function defined in 
-% a disretized volume (using voxels).
-% 3. Average the different signed distance functions, the resulting 
-% signed distance is called D.
-% 4. Set as occupied voxels (those representing the surface) those 
-% where D is very close to zero. The rest of voxels will be considered as 
-% empty.
-%
-% For that you need to compute a depth map from a pair of views in general
-% position (non rectified). Thus, you may either use the plane sweep
-% algorithm (if you did it) or the local method for estimating depth
-% (mandatory task) together with the following rectification method which 
-% has an online demo available: 
-% http://demo.ipol.im/demo/m_quasi_euclidean_epipolar_rectification/
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% OPTIONAL:  10. New view synthesis
-
-% In this task you are asked to implement part of the new view synthesis method
-% presented in the following paper:
-% S. Seitz, and C. Dyer, View morphing, Proc. ACM SIGGRAPH 1996.
-
-% You will use a pair of rectified stereo images (no need for prewarping
-% and postwarping stages) and their corresponding ground truth disparities
-% (folder "new_view").
-% Remember to take into account occlusions as explained in the lab session.
-% Once done you can apply the code to the another pair of rectified images 
-% provided in the material and use the estimated disparities with previous methods.
+% %gt = imread('Data/truedisp.row3.col3.pgm');
+% minDisp = 0;  % minimum disparity; Note 1
+% maxDisp = 16; % maximum disparity; Note 2
+% mc = 'SSD';   % matching cost
+% 
+% ws = 3;      % window size 
+% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% 
+% ws = 9;      % window size 
+% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% 
+% ws = 20;      % window size 
+% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% 
+% ws = 30;      % window size 
+% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% 4. Depth map computation with local methods (NCC)
+% 
+% % Complete the previous function by adding the implementation of the NCC
+% % cost.
+% %
+% % Evaluate the results changing the window size (e.g. 3x3, 9x9, 20x20,
+% % 30x30) and the matching cost. Comment the results.
+% 
+% % leftImg = rgb2gray(imread('Data/scene1.row3.col3.ppm'));
+% % rightImg = rgb2gray(imread('Data/scene1.row3.col4.ppm'));
+% % gt = imread('Data/truedisp.row3.col3.pgm');
+% % min_disp = 0;
+% % max_disp = 16;
+% mc = 'NCC';
+% 
+% ws = 3;      % window size 
+% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% 
+% ws = 9;      % window size 
+% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% 
+% ws = 20;      % window size 
+% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% 
+% ws = 30;      % window size 
+% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% 5. Depth map computation with local methods
+% 
+% % Data images: '0001_rectified_s.png','0002_rectified_s.png'
+% 
+% % Test the functions implemented in the previous section with the facade
+% % images. Try different matching costs and window sizes and comment the
+% % results.
+% % Notice that in this new data the minimum and maximum disparities may
+% % change.
+% leftImg = rgb2gray(imread('Data/0001_rectified_s.png'));
+% rightImg = rgb2gray(imread('Data/0002_rectified_s.png'));
+% minDisp = 0;  % minimum disparity; Note 1
+% maxDisp = 16; % maximum disparity; Note 2
+% 
+% mc = 'SSD';   % matching cost
+% 
+% ws = 3;      % window size 
+% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% 
+% ws = 9;      % window size 
+% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% 
+% ws = 20;      % window size 
+% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% 
+% ws = 30;      % window size 
+% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% 
+% mc = 'NCC';
+% 
+% ws = 3;      % window size 
+% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% 
+% ws = 9;      % window size 
+% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% 
+% ws = 20;      % window size 
+% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% 
+% ws = 30;      % window size 
+% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% 6. Bilateral weights
+% 
+% % Modify the 'stereo_computation' so that you can use bilateral weights (or
+% % adaptive support weights) in the matching cost of two windows.
+% % Reference paper: Yoon and Kweon, "Adaptive Support-Weight Approach for Correspondence Search", IEEE PAMI 2006
+% %
+% % Comment the results and compare them to the previous results (no weights).
+% %
+% % Note: Use grayscale images (the paper uses color images)
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% OPTIONAL:  7. Stereo computation with Belief Propagation
+% 
+% % Use the UGM library used in module 2 and implement a  
+% % stereo computation method that minimizes a simple stereo energy with 
+% % belief propagation. 
+% % For example, use an L2 or L1 pixel-based data term (SSD or SAD) and 
+% % the same regularization term you used in module 2. 
+% % Or pick a stereo paper (based on belief propagation) from the literature 
+% % and implement it. Pick a simple method or just simplify the method they propose.
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% OPTIONAL:  8. Depth computation with Plane Sweeping
+% 
+% % Implement the plane sweeping method explained in class.
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% OPTIONAL:  9. Depth map fusion 
+% 
+% % In this task you are asked to implement the depth map fusion method
+% % presented in the following paper:
+% % B. Curless and M. Levoy. A Volumetric Method for Building Complex
+% % Models from Range Images. In Proc. SIGGRAPH, 1996.
+% %
+% % 1. Use the set of facade images 00xx_s.png to compute depth maps 
+% % corresponding to different views (and optionally from different pairs of 
+% % images for the same view).
+% % 2. Then convert each depth map to a signed distance function defined in 
+% % a disretized volume (using voxels).
+% % 3. Average the different signed distance functions, the resulting 
+% % signed distance is called D.
+% % 4. Set as occupied voxels (those representing the surface) those 
+% % where D is very close to zero. The rest of voxels will be considered as 
+% % empty.
+% %
+% % For that you need to compute a depth map from a pair of views in general
+% % position (non rectified). Thus, you may either use the plane sweep
+% % algorithm (if you did it) or the local method for estimating depth
+% % (mandatory task) together with the following rectification method which 
+% % has an online demo available: 
+% % http://demo.ipol.im/demo/m_quasi_euclidean_epipolar_rectification/
+% 
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% OPTIONAL:  10. New view synthesis
+% 
+% % In this task you are asked to implement part of the new view synthesis method
+% % presented in the following paper:
+% % S. Seitz, and C. Dyer, View morphing, Proc. ACM SIGGRAPH 1996.
+% 
+% % You will use a pair of rectified stereo images (no need for prewarping
+% % and postwarping stages) and their corresponding ground truth disparities
+% % (folder "new_view").
+% % Remember to take into account occlusions as explained in the lab session.
+% % Once done you can apply the code to the another pair of rectified images 
+% % provided in the material and use the estimated disparities with previous methods.
