@@ -41,13 +41,13 @@ function [disparity] = stereo_computation(left_im, right_im, minDisp, maxDisp, w
                 bestNCC = -Inf;                
                 for k = minCol:maxCol
                     right_patch = double(right_im(i-pad:i+pad, k-pad:k+pad));
-                    sum_left = sum(left_patch(:).*weight(:));
-                    sum_right = sum(right_patch(:).*weight(:));
+                    sumLeft = sum(left_patch(:).*weight(:));
+                    sumRight = sum(right_patch(:).*weight(:));
                     
-                    sigma_left = sqrt(sum( weight(:).* (left_patch(:) - sum_left).^2 ));
-                    sigma_right = sqrt(sum( weight(:).* (right_patch(:) - sum_right).^2 ));
+                    sigmaLeft = sqrt(sum( weight(:).* (left_patch(:) - sumLeft).^2 ));
+                    sigmaRight = sqrt(sum( weight(:).* (right_patch(:) - sumRight).^2 ));
                     
-                    ncc = sum( weight(:).*(left_patch(:)-sum_left).*(right_patch(:)-sum_right) )/(sigma_left*sigma_right);
+                    ncc = sum( weight(:).*(left_patch(:)-sumLeft).*(right_patch(:)-sumRight) )/(sigmaLeft*sigmaRight);
                     if ncc > bestNCC
                         bestNCC = ncc;
                         best = k;
