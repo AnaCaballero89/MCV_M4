@@ -68,7 +68,7 @@ plotmatches(I{1}, I{2}, points{1}, points{2}, matches, 'Stacking', 'v');
 %% Fit Fundamental matrix and remove outliers.
 x1 = points{1}(:, matches(1, :));
 x2 = points{2}(:, matches(2, :));
-[F, inliers] = ransac_fundamental_matrix([x1; ones(1, size(x1, 2))], [x2; ones(1, size(x2, 2))], 2.0);
+[F, inliers] = ransac_fundamental_matrix(homog(x1), homog(x2), 2.0);
 
 % Plot inliers.
 inlier_matches = matches(:, inliers);

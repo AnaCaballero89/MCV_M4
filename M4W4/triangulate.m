@@ -1,7 +1,7 @@
 function [X] = triangulate(x1, x2, P1, P2, imsize)
     % Euclidian to Homogeneous coords
-    x1=[x1; ones(1, size(x1, 2))];
-    x2=[x2; ones(1, size(x2, 2))];
+    x1 = homog(x1);
+    x2 = homog(x2);
     
     % build matrix H, slide 10 lecture 7
     %  H = [2/nx    0       -1;
