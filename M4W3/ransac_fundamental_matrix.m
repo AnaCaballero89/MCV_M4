@@ -1,4 +1,4 @@
-function [F, idx_inliers] = ransac_fundamental_matrix (x1, x2, th, max_it)
+function [F, idx_inliers] = ransac_fundamental_matrix (x1, x2, th)
 
 [Ncoords, Npoints] = size(x1);
 max_it=1000;
