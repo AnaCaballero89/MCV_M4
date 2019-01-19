@@ -36,8 +36,7 @@ function [disparity] = stereo_computation(left_im, right_im, minDisp, maxDisp, w
                         best = k;
                     end
                 end
-            end
-            if strcmp(mc, 'NCC')
+            elseif strcmp(mc, 'NCC')
                 bestNCC = -Inf;                
                 for k = minCol:maxCol
                     right_patch = double(right_im(i-pad:i+pad, k-pad:k+pad));
@@ -54,6 +53,7 @@ function [disparity] = stereo_computation(left_im, right_im, minDisp, maxDisp, w
                     end
                 end
             end
+            
             disparity(i-pad, j-pad) = abs(j-best);
         end        
     end

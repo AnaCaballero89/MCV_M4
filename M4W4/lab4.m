@@ -1,12 +1,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Lab 4: Reconstruction from two views (knowing internal camera parameters) 
 
+close all;
+clc;
 
 addpath('../M4W2/sift'); % ToDo: change 'sift' to the correct path where you have the sift functions
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 1. Triangulation
-
+disp('... Runing exercice 1')
 % ToDo: create the function triangulate.m that performs a triangulation
 %       with the homogeneous algebraic method (DLT)
 %
@@ -41,7 +43,7 @@ euclid(X_test) - euclid(X_trian)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 2. Reconstruction from two views
-
+disp('... Runing exercice 2')
 %% Read images
 Irgb{1} = imread('Data/0001_s.png');
 Irgb{2} = imread('Data/0002_s.png');
@@ -49,7 +51,7 @@ I{1} = sum(double(Irgb{1}), 3) / 3 / 255;
 I{2} = sum(double(Irgb{2}), 3) / 3 / 255;
 [h,w] = size(I{1});
 
-
+disp('computing key points...')
 %% Compute keypoints and matches.
 points = cell(2,1);
 descr = cell(2,1);
@@ -59,17 +61,18 @@ for i = 1:2
 end
 
 matches = siftmatch(descr{1}, descr{2});
-
+disp('ploting matches...')
 % Plot matches.
 figure();
 plotmatches(I{1}, I{2}, points{1}, points{2}, matches, 'Stacking', 'v');
 
-
+disp('fit fundamental matrix...')
 %% Fit Fundamental matrix and remove outliers.
 x1 = points{1}(:, matches(1, :));
 x2 = points{2}(:, matches(2, :));
 [F, inliers] = ransac_fundamental_matrix(homog(x1), homog(x2), 2.0);
 
+disp('plot inliers...')
 % Plot inliers.
 inlier_matches = matches(:, inliers);
 figure;
@@ -78,8 +81,7 @@ plotmatches(I{1}, I{2}, points{1}, points{2}, inlier_matches, 'Stacking', 'v');
 x1 = points{1}(:, inlier_matches(1, :));
 x2 = points{2}(:, inlier_matches(2, :));
 
-%vgg_gui_F(Irgb{1}, Irgb{2}, F');
-
+disp('computing candidate camera matrices...')
 %% Compute candidate camera matrices.
 
 % Camera calibration matrix
@@ -99,8 +101,9 @@ P1 =K*[eye(3),zeros(3,1)];
 %
 [U,S,V] = svd(E);
 W = [0 -1 0; 1 0 0; 0 0 1];
-%u3=U(:,end);
+u3=U(:,end);
 
+disp('writting 4 possible matrices...')
 % ToDo: write the four possible matrices for the second camera
 Pc2 = {};
 Pc2{1} =K*[U*W*V',u3]; 
@@ -115,6 +118,7 @@ Pc2{4} = K*[U*W'*V',-u3];
 %     R = -R;
 % end
 
+disp('ploting 1st camera and slutions for 2nd camera...')
 % plot the first camera and the four possible solutions for the second
 figure;
 plot_camera(P1,w,h);
@@ -124,6 +128,7 @@ plot_camera(Pc2{3},w,h);
 plot_camera(Pc2{4},w,h);
 
 %% Reconstruct structure
+disp('Reconstructing structure...')
 % ToDo: Choose a second camera candidate by triangulating a match.
 for i=1:4
     P2 = Pc2{i}; % Pick a matching point
@@ -137,6 +142,7 @@ end
 P2 = Pc2{correct3D};
 
 % Triangulate all matches.
+disp('Triangulating all matches...')
 N = size(x1,2);
 X = zeros(4,N);
 for i = 1:N
@@ -144,6 +150,7 @@ for i = 1:N
 end
 
 %% Plot with colors
+disp('Plot with colors...')
 r = interp2(double(Irgb{1}(:,:,1)), x1(1,:), x1(2,:));
 g = interp2(double(Irgb{1}(:,:,2)), x1(1,:), x1(2,:));
 b = interp2(double(Irgb{1}(:,:,3)), x1(1,:), x1(2,:));
@@ -158,16 +165,17 @@ axis equal;
 
 
 %% Compute reprojection error.
-
+disp('Computing reprojection error...')
 % ToDo: compute the reprojection errors
 projx1 = euclid(P1*X);
 projx2 = euclid(P2*X);
 
+disp('ploting histogram...')
 %       plot the histogram of reprojection errors, and
 projErrors1 = sqrt(sum((x1-projx1).^2, 1));
 projErrors2 = sqrt(sum((x2-projx2).^2, 1));
 
-histogram([projErrors1 projErrors2]);
+histfit([projErrors1 projErrors2]);
 hold on
 totalErrorProjected_1 = sum(projErrors1)
 totalErrorProjected_2 = sum(projErrors2)
@@ -176,140 +184,162 @@ totalErrorProjected_2 = sum(projErrors2)
 total_errorProjected = totalErrorProjected_1+totalErrorProjected_2;
 n_points = size(x1,2);
 
+disp('calculating mean error...')
 meanError = (total_errorProjected/(n_points*2))
 line([meanError meanError], ylim, 'Color','r');
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %% 3. Depth map computation with local methods (SSD)
+%% 3. Depth map computation with local methods (SSD)
+disp('... Runing exercice 3')
+% Data images: 'scene1.row3.col3.ppm','scene1.row3.col4.ppm'
+% Disparity ground truth: 'truedisp.row3.col3.pgm'
+
+% Write a function called 'stereo_computation' that computes the disparity
+% between a pair of rectified images using a local method based on a matching cost 
+% between two local windows.
 % 
-% % Data images: 'scene1.row3.col3.ppm','scene1.row3.col4.ppm'
-% % Disparity ground truth: 'truedisp.row3.col3.pgm'
-% 
-% % Write a function called 'stereo_computation' that computes the disparity
-% % between a pair of rectified images using a local method based on a matching cost 
-% % between two local windows.
-% % 
-% % The input parameters are 5:
-% % - left image
-% % - right image
-% % - minimum disparity
-% % - maximum disparity
-% % - window size (e.g. a value of 3 indicates a 3x3 window)
-% % - matching cost (the user may able to choose between SSD and NCC costs)
-% %
-% % In this part we ask to implement only the SSD cost
-% %
-% % Evaluate the results changing the window size (e.g. 3x3, 9x9, 20x20,
-% % 30x30) and the matching cost. Comment the results.
-% %
-% % Note 1: Use grayscale images
-% % Note 2: For this first set of images use 0 as minimum disparity 
-% % and 16 as the the maximum one.
-% 
-% leftImg = rgb2gray(imread('Data/scene1.row3.col3.ppm'));
-% rightImg = rgb2gray(imread('Data/scene1.row3.col4.ppm'));
-% %gt = imread('Data/truedisp.row3.col3.pgm');
-% minDisp = 0;  % minimum disparity; Note 1
-% maxDisp = 16; % maximum disparity; Note 2
-% mc = 'SSD';   % matching cost
-% 
-% ws = 3;      % window size 
-% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-% 
-% ws = 9;      % window size 
-% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-% 
-% ws = 20;      % window size 
-% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-% 
-% ws = 30;      % window size 
-% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+% The input parameters are 5:
+% - left image
+% - right image
+% - minimum disparity
+% - maximum disparity
+% - window size (e.g. a value of 3 indicates a 3x3 window)
+% - matching cost (the user may able to choose between SSD and NCC costs)
+%
+% In this part we ask to implement only the SSD cost
+%
+% Evaluate the results changing the window size (e.g. 3x3, 9x9, 20x20,
+% 30x30) and the matching cost. Comment the results.
+%
+% Note 1: Use grayscale images
+% Note 2: For this first set of images use 0 as minimum disparity 
+% and 16 as the the maximum one.
+disp('setup variables...')
+leftImg = rgb2gray(imread('Data/scene1.row3.col3.ppm'));
+rightImg = rgb2gray(imread('Data/scene1.row3.col4.ppm'));
+%gt = imread('Data/truedisp.row3.col3.pgm');
+minDisp = 0;  % minimum disparity; Note 1
+maxDisp = 16; % maximum disparity; Note 2
+mc = 'SSD';   % matching cost
+
+disp('stereo_computation, SSD for window size = 3x3...')
+ws = 3;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
+disp('stereo_computation, SSD for window size = 9x9...')
+ws = 9;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
+disp('stereo_computation, SSD for window size = 20x20...')
+ws = 20;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
+disp('stereo_computation, SSD for window size = 30x30...')
+ws = 30;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %% 4. Depth map computation with local methods (NCC)
-% 
-% % Complete the previous function by adding the implementation of the NCC
-% % cost.
-% %
-% % Evaluate the results changing the window size (e.g. 3x3, 9x9, 20x20,
-% % 30x30) and the matching cost. Comment the results.
-% 
-% % leftImg = rgb2gray(imread('Data/scene1.row3.col3.ppm'));
-% % rightImg = rgb2gray(imread('Data/scene1.row3.col4.ppm'));
-% % gt = imread('Data/truedisp.row3.col3.pgm');
-% % min_disp = 0;
-% % max_disp = 16;
-% mc = 'NCC';
-% 
-% ws = 3;      % window size 
-% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-% 
-% ws = 9;      % window size 
-% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-% 
-% ws = 20;      % window size 
-% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-% 
-% ws = 30;      % window size 
-% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %% 5. Depth map computation with local methods
-% 
-% % Data images: '0001_rectified_s.png','0002_rectified_s.png'
-% 
-% % Test the functions implemented in the previous section with the facade
-% % images. Try different matching costs and window sizes and comment the
-% % results.
-% % Notice that in this new data the minimum and maximum disparities may
-% % change.
-% leftImg = rgb2gray(imread('Data/0001_rectified_s.png'));
-% rightImg = rgb2gray(imread('Data/0002_rectified_s.png'));
-% minDisp = 0;  % minimum disparity; Note 1
-% maxDisp = 16; % maximum disparity; Note 2
-% 
-% mc = 'SSD';   % matching cost
-% 
-% ws = 3;      % window size 
-% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-% 
-% ws = 9;      % window size 
-% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-% 
-% ws = 20;      % window size 
-% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-% 
-% ws = 30;      % window size 
-% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-% 
-% mc = 'NCC';
-% 
-% ws = 3;      % window size 
-% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-% 
-% ws = 9;      % window size 
-% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-% 
-% ws = 20;      % window size 
-% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-% 
-% ws = 30;      % window size 
-% disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
-% imshow(uint8(disparity)*16); % 16 'cos of the max disparity
-% 
+disp('... Runing exercice 4') 
+% Complete the previous function by adding the implementation of the NCC
+% cost.
+%
+% Evaluate the results changing the window size (e.g. 3x3, 9x9, 20x20,
+% 30x30) and the matching cost. Comment the results.
+
+% leftImg = rgb2gray(imread('Data/scene1.row3.col3.ppm'));
+% rightImg = rgb2gray(imread('Data/scene1.row3.col4.ppm'));
+% gt = imread('Data/truedisp.row3.col3.pgm');
+% min_disp = 0;
+% max_disp = 16;
+mc = 'NCC';
+
+disp('stereo_computation, NCC for window size = 3x3...')
+ws = 3;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
+disp('stereo_computation, NCC for window size = 9x9...')
+ws = 9;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
+disp('stereo_computation, NCC for window size = 20x20...')
+ws = 20;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
+disp('stereo_computation, NCC for window size = 30x30...')
+ws = 30;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 5. Depth map computation with local methods
+disp('... Runing exercice 5') 
+
+% Data images: '0001_rectified_s.png','0002_rectified_s.png'
+
+% Test the functions implemented in the previous section with the facade
+% images. Try different matching costs and window sizes and comment the
+% results.
+% Notice that in this new data the minimum and maximum disparities may
+% change.
+disp('setup variables...')
+
+leftImg = rgb2gray(imread('Data/0001_rectified_s.png'));
+rightImg = rgb2gray(imread('Data/0002_rectified_s.png'));
+minDisp = 0;  % minimum disparity; Note 1
+maxDisp = 16; % maximum disparity; Note 2
+
+mc = 'SSD';   % matching cost
+
+disp('stereo_computation, SSD for window size = 3x3...')
+ws = 3;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
+disp('stereo_computation, SSD for window size = 9x9...')
+ws = 9;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
+disp('stereo_computation, SSD for window size = 20x20...')
+ws = 20;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
+disp('stereo_computation, SSD for window size = 30x30...')
+ws = 30;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
+
+mc = 'NCC';
+
+disp('stereo_computation, NCC for window size = 3x3...')
+ws = 3;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
+disp('stereo_computation, NCC for window size = 9x9...')
+ws = 9;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
+disp('stereo_computation, NCC for window size = 20x20...')
+ws = 20;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
+disp('stereo_computation, NCC for window size = 30x30...')
+ws = 30;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %% 6. Bilateral weights
 % 
