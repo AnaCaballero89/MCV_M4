@@ -58,7 +58,7 @@ function [disparity] = stereo_computation(left_im, right_im, minDisp, maxDisp, w
                 end
                 
              elseif strcmp(mc, 'BW') 
-                 bestBW = Inf; 
+                 bestBW =-Inf; 
                  g_c=14;%gamma c
                  g_p=ws/2;%gamma p,field of view of the human visual system
                  T=20;
@@ -78,12 +78,12 @@ function [disparity] = stereo_computation(left_im, right_im, minDisp, maxDisp, w
                             e=min(abs(left_patch(i,j)-right_patch(i,j)),T); 
                      
                             %dissimilarity BW
-                            E=E+(sum(wpq1.*wpq2.*e)/sum(wpq1.*wpq2));
+                            E=E+sum(sum(wpq1.*wpq2.*e)/sum(wpq1.*wpq2));
                         end
                     end
                      
                      
-                    if E < bestBW
+                    if E > bestBW
                         bestBW = E;
                         best = E;
                     end
