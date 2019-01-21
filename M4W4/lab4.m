@@ -341,7 +341,7 @@ figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %% 6. Bilateral weights
-% 
+ 
 % % Modify the 'stereo_computation' so that you can use bilateral weights (or
 % % adaptive support weights) in the matching cost of two windows.
 % % Reference paper: Yoon and Kweon, "Adaptive Support-Weight Approach for Correspondence Search", IEEE PAMI 2006
