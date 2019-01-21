@@ -24,11 +24,8 @@ function [disparity] = stereo_computation(left_im, right_im, minDisp, maxDisp, w
             maxCol = min((w + pad), (j + maxDisp));
             
             % define window weight
-            if strcmp(mc, 'BW')
-                
-            else    
-                weight = zeros(size(left_patch));
-                weight(:) = 1/(prod(size(left_patch)));
+            weight = zeros(size(left_patch));
+            weight(:) = 1/(prod(size(left_patch)));
 
             if strcmp(mc, 'SSD')
                 bestSSD = Inf; 
@@ -58,7 +55,7 @@ function [disparity] = stereo_computation(left_im, right_im, minDisp, maxDisp, w
                 end
                 
              elseif strcmp(mc, 'BW') 
-                 bestBW =-Inf; 
+                 bestBW =Inf; 
                  g_c=14;%gamma c
                  g_p=ws/2;%gamma p,field of view of the human visual system
                  T=20;
@@ -70,7 +67,7 @@ function [disparity] = stereo_computation(left_im, right_im, minDisp, maxDisp, w
                             %Euclidian distance spatial and in the color
                             cp_dist1=abs(left_patch(i,j)-left_patch(pad,pad));
                             cp_dist2=abs(right_patch(i,j)-right_patch(pad,pad));
-                            gp_dist=sqrt((i-tab)^2+(j-tab)^2);
+                            gp_dist=sqrt((i-pad)^2+(j-pad)^2);
                             %Weights 
                             wpq1=exp(-(cp_dist1./g_c+gp_dist./g_p));
                             wpq2=exp(-(cp_dist2./g_c+gp_dist./g_p));
@@ -78,12 +75,12 @@ function [disparity] = stereo_computation(left_im, right_im, minDisp, maxDisp, w
                             e=min(abs(left_patch(i,j)-right_patch(i,j)),T); 
                      
                             %dissimilarity BW
-                            E=E+sum(sum(wpq1.*wpq2.*e)/sum(wpq1.*wpq2));
+                            E=E+(sum(wpq1.*wpq2.*e)/sum(wpq1.*wpq2));
                         end
                     end
                      
                      
-                    if E > bestBW
+                    if E < bestBW
                         bestBW = E;
                         best = E;
                     end
@@ -96,5 +93,4 @@ function [disparity] = stereo_computation(left_im, right_im, minDisp, maxDisp, w
             disparity(i-pad, j-pad) = abs(j-best);
         end        
     end
-    a=1;
-end
+
