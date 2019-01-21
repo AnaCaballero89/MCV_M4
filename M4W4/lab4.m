@@ -339,18 +339,18 @@ ws = 30;      % window size
 disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
 figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %% 6. Bilateral weights
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 6. Bilateral weights
  
-% % Modify the 'stereo_computation' so that you can use bilateral weights (or
-% % adaptive support weights) in the matching cost of two windows.
-% % Reference paper: Yoon and Kweon, "Adaptive Support-Weight Approach for Correspondence Search", IEEE PAMI 2006
-% %
-% % Comment the results and compare them to the previous results (no weights).
-% %
-% % Note: Use grayscale images (the paper uses color images)
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Modify the 'stereo_computation' so that you can use bilateral weights (or
+% adaptive support weights) in the matching cost of two windows.
+% Reference paper: Yoon and Kweon, "Adaptive Support-Weight Approach for Correspondence Search", IEEE PAMI 2006
+%
+% Comment the results and compare them to the previous results (no weights).
+%
+% Note: Use grayscale images (the paper uses color images)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %% OPTIONAL:  7. Stereo computation with Belief Propagation
 % 
 % % Use the UGM library used in module 2 and implement a  
@@ -366,6 +366,12 @@ figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
 % 
 % % Implement the plane sweeping method explained in class.
 % 
+% For each sampling depth:
+% I Compute the fronto-parallel plane at the corresponding depth
+% I Compute the image to image homography given a plane
+% I Warp the second image according to the homography
+% I Compute the matching score (SSD, NCC, ...)
+% I For each pixel keep the depth with best score
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %% OPTIONAL:  9. Depth map fusion 
 % 
