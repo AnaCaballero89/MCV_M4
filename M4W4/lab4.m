@@ -4,7 +4,7 @@
 close all;
 clc;
 
-addpath('../M4W2/sift'); % ToDo: change 'sift' to the correct path where you have the sift functions
+addpath('sift'); % ToDo: change 'sift' to the correct path where you have the sift functions
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 1. Triangulation
@@ -101,6 +101,13 @@ P1 =K*[eye(3),zeros(3,1)];
 [U,S,V] = svd(E);
 W = [0 -1 0; 1 0 0; 0 0 1];
 u3=U(:,end);
+
+if det(U) < 0
+     U = -U;
+end
+if det(V) < 0
+     V = -V;
+end
 
 disp('writting 4 possible matrices...')
 % ToDo: write the four possible matrices for the second camera
