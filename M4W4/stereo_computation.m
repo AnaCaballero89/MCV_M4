@@ -56,31 +56,30 @@ function [disparity] = stereo_computation(left_im, right_im, minDisp, maxDisp, w
                 
              elseif strcmp(mc, 'BW') 
                  bestBW =Inf; 
-                 g_c=5;%gamma c
-                 g_p=ws/2;%gamma p,field of view of the human visual system
-                 T=40;
+                 g_c=5;%gamma c, given by the paper
+                 g_p=ws/2;%gamma p, radius of the window (field of view of the human visual system)
+                 T=40;% Truncation values,constant given by the paper
                  center=ceil(ws/2);
                  for k = minCol:maxCol
-                    num=0;
-                    den=0;
+                    numerador=0;
+                    denonminador=0;
                     
                     right_patch = double(right_im(i-pad:i+pad, k-pad:k+pad));
                     for p=1:ws      
                         for q=1:ws
-                            %Euclidian distance spatial and in the color
-                            cp_dist1=abs(left_patch(p,q)-left_patch(center,center));
-                            cp_dist2=abs(right_patch(p,q)-right_patch(center,center));
+                            %Euclidian distance spatial and in color
+                            cp_dist1=(1/3)*abs(double(left_patch(p,q)-left_patch(center,center)));
+                            cp_dist2=(1/3)*abs(double(right_patch(p,q)-right_patch(center,center)));
                             gp_dist=sqrt((p-center)^2+(q-center)^2);
                             %Weights 
                             wpq1=exp(-(cp_dist1/g_c+gp_dist./g_p));
                             wpq2=exp(-(cp_dist2/g_c+gp_dist./g_p));
                             %absolute difference AD
-                            e=min(abs(left_patch(p,q)-right_patch(p,q)),T); 
+                            e=min(abs(double(left_patch(p,q)-right_patch(p,q))),T); 
                      
-                            %dissimilarity BW
-                            %E=E+(sum(wpq1.*wpq2.*e)/sum(wpq1.*wpq2));
-                            numerador=num+(wpq1*wpq2*e);
-                            denonminador=den+(wpq1*wpq2);
+                            %dissimilarity BW 
+                            numerador=numerador+(wpq1*wpq2*e);
+                            denonminador=denonminador+(wpq1*wpq2);
                         end
                     end
                     E=numerador/denonminador; 
@@ -92,7 +91,7 @@ function [disparity] = stereo_computation(left_im, right_im, minDisp, maxDisp, w
                  end
             
               end 
-            %end
+            
             disparity(i-pad, j-pad) = abs(j-best);
         end        
     end

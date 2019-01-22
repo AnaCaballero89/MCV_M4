@@ -227,7 +227,7 @@ rightImg = rgb2gray(imread('Data/scene1.row3.col4.ppm'));
 minDisp = 0;  % minimum disparity; Note 1
 maxDisp = 16; % maximum disparity; Note 2
 mc = 'SSD';   % matching cost
-
+%%
 disp('stereo_computation, SSD for window size = 3x3...')
 ws = 3;      % window size 
 disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
@@ -302,7 +302,7 @@ minDisp = 0;  % minimum disparity; Note 1
 maxDisp = 16; % maximum disparity; Note 2
 
 mc = 'SSD';   % matching cost
-
+%%
 disp('stereo_computation, SSD for window size = 3x3...')
 ws = 3;      % window size 
 disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
@@ -356,6 +356,29 @@ figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
 % Comment the results and compare them to the previous results (no weights).
 %
 % Note: Use grayscale images (the paper uses color images)
+
+mc = 'BW';   % matching cost
+
+disp('stereo_computation, BW for window size = 3x3...')
+ws = 3;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
+disp('stereo_computation, BW for window size = 9x9...')
+ws = 9;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
+disp('stereo_computation, BW for window size = 20x20...')
+ws = 20;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
+disp('stereo_computation, BW for window size = 30x30...')
+ws = 30;      % window size 
+disparity = stereo_computation(leftImg, rightImg, minDisp, maxDisp, ws, mc);
+figure; imshow(uint8(disparity)*16); % 16 'cos of the max disparity
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %% OPTIONAL:  7. Stereo computation with Belief Propagation
