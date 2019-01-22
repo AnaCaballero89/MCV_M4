@@ -56,30 +56,34 @@ function [disparity] = stereo_computation(left_im, right_im, minDisp, maxDisp, w
                 
              elseif strcmp(mc, 'BW') 
                  bestBW =Inf; 
-                 g_c=14;%gamma c
-                 g_p=ws/2;%gamma p,field of view of the human visual system
-                 T=20;
+                 g_c=5;%gamma c
+                 g_p=17.5;%gamma p,field of view of the human visual system
+                 T=10;
+                 center = ceil(ws/2);
                  for k = minCol:maxCol
-                    E=0;
-                    right_patch = double(right_im(i-pad:i+pad, k-pad:k+pad));
-                    for i=1:ws
-                        for j=1:ws
+                    num=0;
+                    den=0;
+                    right_patch = double(right_im(i-pad:i+pad, j-pad:j+pad));
+                    
+                    for p=1:ws      
+                        for q=1:ws
                             %Euclidian distance spatial and in the color
-                            cp_dist1=abs(left_patch(i,j)-left_patch(pad,pad));
-                            cp_dist2=abs(right_patch(i,j)-right_patch(pad,pad));
-                            gp_dist=sqrt((i-pad)^2+(j-pad)^2);
+                            cp_dist1=abs(left_patch(p,q)-left_patch(pad,pad));
+                            cp_dist2=abs(right_patch(p,q)-right_patch(pad,pad));
+                            gp_dist=sqrt((p-pad)^2+(q-pad)^2);
                             %Weights 
                             wpq1=exp(-(cp_dist1./g_c+gp_dist./g_p));
                             wpq2=exp(-(cp_dist2./g_c+gp_dist./g_p));
                             %absolute difference AD
-                            e=min(abs(left_patch(i,j)-right_patch(i,j)),T); 
+                            e=min(abs(left_patch(p,q)-right_patch(p,q)),T); 
                      
                             %dissimilarity BW
-                            E=E+(sum(wpq1.*wpq2.*e)/sum(wpq1.*wpq2));
+                            %E=E+(sum(wpq1.*wpq2.*e)/sum(wpq1.*wpq2));
+                            num=num+sum(wpq1*wpq2*e);
+                            den=sum(wpq1*wpq2);
                         end
                     end
-                     
-                     
+                    E=num/den; 
                     if E < bestBW
                         bestBW = E;
                         best = E;
@@ -87,9 +91,8 @@ function [disparity] = stereo_computation(left_im, right_im, minDisp, maxDisp, w
                  
                  end
             
-            end 
-            end
-            
+              end 
+            %end
             disparity(i-pad, j-pad) = abs(j-best);
         end        
     end
