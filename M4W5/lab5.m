@@ -245,35 +245,35 @@ axis equal
 % point formed by the line that joins points xo1 and xf1 and the line 
 % that joins points x02 and xf2
 %
-% [v1] = vanishing_point(xo1, xf1, xo2, xf2)
+% [v1] = vanishing_point(xo1, xf1, xo2, xf2);
 
-% Compute the vanishing points in each image
-v1 = vanishing_point(x1(:,21),x1(:,22),x1(:,23),x1(:,24));
-v2 = vanishing_point(x1(:,21),x1(:,23),x1(:,22),x1(:,24));
-v3 = vanishing_point(x1(:,1),x1(:,2),x1(:,4),x1(:,3));
-
-v1p = vanishing_point(x2(:,21),x2(:,22),x2(:,23),x2(:,24));
-v2p = vanishing_point(x2(:,21),x2(:,23),x2(:,22),x2(:,24));
-v3p = vanishing_point(x2(:,1),x2(:,2),x2(:,4),x2(:,3));
+% Compute the vanishing points in each image, size of x1 and x2 is 3x24
+% --- img 1 ---
+v1_1 = vanishing_point(x1(:,21),x1(:,22),x1(:,23),x1(:,24)) ;  
+v1_2 = vanishing_point(x1(:,21),x1(:,23),x1(:,22),x1(:,24));
+v1_3 = vanishing_point(x1(:,1),x1(:,2),x1(:,3),x1(:,4));
+% --- img 2 ---
+v2_1 = vanishing_point(x2(:,21),x2(:,22),x2(:,23),x2(:,24));
+v2_2 = vanishing_point(x2(:,21),x2(:,23),x2(:,22),x2(:,24));
+v2_3 = vanishing_point(x2(:,1),x2(:,2),x2(:,3),x2(:,4));
 
 % ToDo: use the vanishing points to compute the matrix Hp that 
 %       upgrades the projective reconstruction to an affine reconstruction
 
-% First we need to create matrix A
-% We have to get the vanishing points v and v' in P3 space 
-% and triangulate them
-A = [triangulate(euclid(v1), euclid(v1p), Pproj(1:3,:), Pproj(4:6,:), [w h])';
-    triangulate(euclid(v2), euclid(v2p), Pproj(1:3,:), Pproj(4:6,:), [w h])';
-    triangulate(euclid(v3), euclid(v3p), Pproj(1:3,:), Pproj(4:6,:), [w h])'];
+% http://users.umiacs.umd.edu/~ramani/cmsc828d/lecture28.pdf
+% Find 3 intersections of sets of lines in the scene that are supposed to be parallel
+A = [triangulate(euclid(v1_1), euclid(v2_1), Pproj(1:3,:), Pproj(4:6,:), [w h])';
+     triangulate(euclid(v1_2), euclid(v2_2), Pproj(1:3,:), Pproj(4:6,:), [w h])';
+     triangulate(euclid(v1_3), euclid(v2_3), Pproj(1:3,:), Pproj(4:6,:), [w h])'];
 
-[~,~,V] = svd(A);
-p = V(:,end);
+% Find a transformation H that maps the plane
+% This plane contains all points at infinity
+[~,~,v] = svd(A);
+plane = v(:,end);
+plane = plane/plane(end);
 
-% normalize p
-p = p/p(end);
-
-Hp = eye(4,4);
-Hp(end,:) = p';
+Hp = eye(4,4);      % the size is 4x4 as in the plots
+Hp(end,:) = plane'; % overwrite the last row with the plane transpose
 
 %% check results
 
@@ -317,17 +317,25 @@ axis vis3d
 axis equal
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %% 3. Metric reconstruction (synthetic data)
+%% 3. Metric reconstruction (synthetic data)
+
+% ToDo: compute the matrix Ha that 
+%       upgrades the projective reconstruction to an affine reconstruction
+% Use the following vanishing points given by three pair of orthogonal lines
+% and assume that the skew factor is zero and that pixels are square
+
+v1 = vanishing_point(x1(:,2),x1(:,5),x1(:,3),x1(:,6));
+v2 = vanishing_point(x1(:,1),x1(:,2),x1(:,3),x1(:,4));
+v3 = vanishing_point(x1(:,1),x1(:,4),x1(:,2),x1(:,3));
+
+% pg 16 http://users.umiacs.umd.edu/~ramani/cmsc828d/lecture28.pdf
+% los dos primeros puntos ya estan hechos
+% esencialMetrix = fundamental_matrix(v1,v1);
 % 
-% % ToDo: compute the matrix Ha that 
-% %       upgrades the projective reconstruction to an affine reconstruction
-% % Use the following vanishing points given by three pair of orthogonal lines
-% % and assume that the skew factor is zero and that pixels are square
-% 
-% v1 = vanishing_point(x1(:,2),x1(:,5),x1(:,3),x1(:,6));
-% v2 = vanishing_point(x1(:,1),x1(:,2),x1(:,3),x1(:,4));
-% v3 = vanishing_point(x1(:,1),x1(:,4),x1(:,2),x1(:,3));
-% 
+% [u,d,v] = svd(esencialMetrix);
+% plane = v(:,end);
+% plane = plane/plane(end);
+
 % %% check results
 % 
 % Xa = euclid(Ha*Hp*Xproj);
@@ -371,78 +379,78 @@ axis equal
 % 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 4. Projective reconstruction (real data)
-close all;
-clear;
-clc;
-
-%% read images
-Irgb{1} = double(imread('Data/0000_s.png'))/255;
-Irgb{2} = double(imread('Data/0001_s.png'))/255;
-
-I{1} = sum(Irgb{1}, 3) / 3; 
-I{2} = sum(Irgb{2}, 3) / 3;
-
-Ncam = length(I);
-
-% ToDo: compute a projective reconstruction using the factorization method
-
-% Compute keypoints and matches.
-points = cell(2,1);
-descr = cell(2,1);
-for i = 1:2
-    [points{i}, descr{i}] = sift(I{i}, 'Threshold', 0.01);
-    points{i} = points{i}(1:2,:);
-end
-
-matches = siftmatch(descr{1}, descr{2});
-
-% Plot matches.
-figure();
-plotmatches(I{1}, I{2}, points{1}, points{2}, matches, 'Stacking', 'v');
-
-% Fit Fundamental matrix and remove outliers.
-x1m = points{1}(:, matches(1, :));
-x2m = points{2}(:, matches(2, :));
-[F, inliers] = ransac_fundamental_matrix(homog(x1m), homog(x2m), 2.0);
-
-% Plot inliers.
-inlier_matches = matches(:, inliers);
-figure;
-plotmatches(I{1}, I{2}, points{1}, points{2}, inlier_matches, 'Stacking', 'v');
-
-x1m = points{1}(:, inlier_matches(1, :));
-x2m = points{2}(:, inlier_matches(2, :));
-
-x1m = homog(x1m);
-x2m = homog(x2m);
-
-
-% ToDo: show the data points (image correspondences) and the projected
-% points (of the reconstructed 3D points) in images 1 and 2. Reuse the code
-% in section 'Check projected points' (synthetic experiment).
-
-%% Check projected points (estimated and data points)
-[Pproj, Xm] = factorization_method(x1m,x2m, 'sturm');
-for i=1:2
-    x_proj{i} = euclid(Pproj(3*i-2:3*i, :)*Xm);
-end
-x_d{1} = euclid(x1m);
-x_d{2} = euclid(x2m);
-
-% image 1
-figure;
-imshow(Irgb{1})
-hold on
-plot(x_d{1}(1,:),x_d{1}(2,:),'r*');
-plot(x_proj{1}(1,:),x_proj{1}(2,:),'bo');
-axis equal
-
-% image 2
-figure;
-imshow(Irgb{2})
-hold on
-plot(x_d{2}(1,:),x_d{2}(2,:),'r*');
-plot(x_proj{2}(1,:),x_proj{2}(2,:),'bo');
+% close all;
+% clear;
+% clc;
+% 
+% %% read images
+% Irgb{1} = double(imread('Data/0000_s.png'))/255;
+% Irgb{2} = double(imread('Data/0001_s.png'))/255;
+% 
+% I{1} = sum(Irgb{1}, 3) / 3; 
+% I{2} = sum(Irgb{2}, 3) / 3;
+% 
+% Ncam = length(I);
+% 
+% % ToDo: compute a projective reconstruction using the factorization method
+% 
+% % Compute keypoints and matches.
+% points = cell(2,1);
+% descr = cell(2,1);
+% for i = 1:2
+%     [points{i}, descr{i}] = sift(I{i}, 'Threshold', 0.01);
+%     points{i} = points{i}(1:2,:);
+% end
+% 
+% matches = siftmatch(descr{1}, descr{2});
+% 
+% % Plot matches.
+% figure();
+% plotmatches(I{1}, I{2}, points{1}, points{2}, matches, 'Stacking', 'v');
+% 
+% % Fit Fundamental matrix and remove outliers.
+% x1m = points{1}(:, matches(1, :));
+% x2m = points{2}(:, matches(2, :));
+% [F, inliers] = ransac_fundamental_matrix(homog(x1m), homog(x2m), 2.0);
+% 
+% % Plot inliers.
+% inlier_matches = matches(:, inliers);
+% figure;
+% plotmatches(I{1}, I{2}, points{1}, points{2}, inlier_matches, 'Stacking', 'v');
+% 
+% x1m = points{1}(:, inlier_matches(1, :));
+% x2m = points{2}(:, inlier_matches(2, :));
+% 
+% x1m = homog(x1m);
+% x2m = homog(x2m);
+% 
+% 
+% % ToDo: show the data points (image correspondences) and the projected
+% % points (of the reconstructed 3D points) in images 1 and 2. Reuse the code
+% % in section 'Check projected points' (synthetic experiment).
+% 
+% %% Check projected points (estimated and data points)
+% [Pproj, Xm] = factorization_method(x1m,x2m);
+% for i=1:2
+%     x_proj{i} = euclid(Pproj(3*i-2:3*i, :)*Xm);
+% end
+% x_d{1} = euclid(x1m);
+% x_d{2} = euclid(x2m);
+% 
+% % image 1
+% figure;
+% imshow(Irgb{1})
+% hold on
+% plot(x_d{1}(1,:),x_d{1}(2,:),'r*');
+% plot(x_proj{1}(1,:),x_proj{1}(2,:),'bo');
+% axis equal
+% 
+% % image 2
+% figure;
+% imshow(Irgb{2})
+% hold on
+% plot(x_d{2}(1,:),x_d{2}(2,:),'r*');
+% plot(x_proj{2}(1,:),x_proj{2}(2,:),'bo');
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %% 5. Affine reconstruction (real data)
