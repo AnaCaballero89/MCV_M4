@@ -1,4 +1,4 @@
-function [Pproj, Xproj] = factorization_method(x1,x2,in) 
+function [Pproj, Xproj] = factorization_method(x1,x2) 
     % Outline of the Algoritm
     % Normalize the image coordinates, by applying transformations
     % --- cam1 ---
@@ -53,8 +53,8 @@ function [Pproj, Xproj] = factorization_method(x1,x2,in)
     end
  
     
-    % Balance W ,by column-wise and ?triplet-of-rows?-wise scalar mutliplication,
-     conv= Inf;
+    % Balance W ,by column-wise and “triplet-of-rows”-wise scalar mutliplication,
+     d= Inf;
      converge = false;
     
      while (converge == false)
@@ -92,11 +92,6 @@ function [Pproj, Xproj] = factorization_method(x1,x2,in)
         % Build the rescaled measurement matrix W
         % pg 5 of the paper, (3.2)
         W = zeros(3*2, size(x1,2));
-        
-        % initialization of lamda as 1
-        if(in)
-          lamda = ones(2,size(x1,2));  
-        end
         % --- cam1 ---
         W(1,:) = lamda(1,:).*q1(1,:);
         W(2,:) = lamda(1,:).*q1(2,:);
@@ -116,25 +111,25 @@ function [Pproj, Xproj] = factorization_method(x1,x2,in)
         Pmotion = u*s(:,1:4);
         Xproj = v(:,1:4)';
         
-        auxConv = conv;%auxConv is the convergence value of the prev iteration
-        conv = 0;
+        d_old = d;%d_old is the convergence value of the prev iteration
+        d = 0;
         
         % --- cam1 ---
         Pshape = Pmotion(1:3,:) * Xproj;
         x = q2;
         for p=1:size(x1,2)
-             conv = conv + sum((x(:,p) - Pshape(:,p)).^2);
+             d = d + sum((x(:,p) - Pshape(:,p)).^2);
         end
        
         % --- cam2 ---
         Pshape = Pmotion(4:6,:) * Xproj;
         x = q2;
         for p=1:size(x1,2)
-             conv = conv + sum((x(:,p) - Pshape(:,p)).^2);
+             d = d + sum((x(:,p) - Pshape(:,p)).^2);
         end
        
         % we consider a 10% as before for convergence
-        if ((abs(conv - auxConv)/conv) < 0.1)
+        if ((abs(d - d_old)/d) < 0.1)
             converge = true;
         else 
             aux = Pmotion*Xproj;
