@@ -1,4 +1,4 @@
-function [Pproj, Xproj] = factorization_method(x1,x2) 
+function [Pproj, Xproj] = factorization_method(x1,x2,in) 
     % Outline of the Algoritm
     % Normalize the image coordinates, by applying transformations
     % --- cam1 ---
@@ -53,7 +53,7 @@ function [Pproj, Xproj] = factorization_method(x1,x2)
     end
  
     
-    % Balance W ,by column-wise and “triplet-of-rows”-wise scalar mutliplication,
+    % Balance W ,by column-wise and ?triplet-of-rows?-wise scalar mutliplication,
      conv= Inf;
      converge = false;
     
@@ -92,6 +92,11 @@ function [Pproj, Xproj] = factorization_method(x1,x2)
         % Build the rescaled measurement matrix W
         % pg 5 of the paper, (3.2)
         W = zeros(3*2, size(x1,2));
+        
+        % initialization of lamda as 1
+        if(in)
+          lamda = ones(2,size(x1,2));  
+        end
         % --- cam1 ---
         W(1,:) = lamda(1,:).*q1(1,:);
         W(2,:) = lamda(1,:).*q1(2,:);

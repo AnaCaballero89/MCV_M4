@@ -170,7 +170,7 @@ x2(3,:) = x2(3,:)./x2(3,:);
 % in the previous iteration.
 
 %% Check projected points (estimated and data points)
-[Pproj, Xproj] = factorization_method(x1,x2);  % <---
+[Pproj, Xproj] = factorization_method(x1,x2,1);  % <---
 
 for i=1:2
     x_proj{i} = euclid(Pproj(3*i-2:3*i, :)*Xproj);
@@ -190,6 +190,62 @@ figure;
 hold on
 plot(x_d{2}(1,:),x_d{2}(2,:),'r*');
 plot(x_proj{2}(1,:),x_proj{2}(2,:),'bo');
+
+%%
+[Pproj, Xproj] = factorization_method(x1,x2,0);  % <---
+
+for i=1:2
+    x_proj2{i} = euclid(Pproj(3*i-2:3*i, :)*Xproj);
+end
+
+% image 1
+figure;
+hold on
+plot(x_d{1}(1,:),x_d{1}(2,:),'r*');
+plot(x_proj2{1}(1,:),x_proj2{1}(2,:),'bo');
+axis equal
+
+% image 2
+figure;
+hold on
+plot(x_d{2}(1,:),x_d{2}(2,:),'r*');
+plot(x_proj2{2}(1,:),x_proj2{2}(2,:),'bo');
+disp('ploting histogram...')
+
+
+%plot the histogram of reprojection errors, and
+projErrors11 = sqrt(sum((x_d{1}-x_proj{1}).^2, 1));
+projErrors12 = sqrt(sum((x_d{1}-x_proj{2}).^2, 1));
+
+projErrors21 = sqrt(sum((x_d{1}-x_proj2{1}).^2, 1));
+projErrors22 = sqrt(sum((x_d{2}-x_proj2{2}).^2, 1));
+
+subplot(2,1,1)
+histfit([projErrors11 projErrors12]);
+hold on
+
+totalErrorProjected_11 = sum(projErrors11)
+totalErrorProjected_12 = sum(projErrors12)
+
+%       plot the mean reprojection error
+total_errorProjected1 = totalErrorProjected_11+totalErrorProjected_12;
+n_points = size(x1,2);
+disp('calculating mean error first initialization...')
+meanError1=(total_errorProjected1/(n_points*2))
+line([meanError1 meanError1], ylim, 'Color','r');
+title('Reprojection Error lambda initialization in ones')
+
+
+subplot(2,1,2)
+histfit([projErrors21 projErrors22]);
+hold on
+totalErrorProjected_21 = sum(projErrors21)
+totalErrorProjected_22 = sum(projErrors22)
+total_errorProjected2 = totalErrorProjected_21+totalErrorProjected_22
+disp('calculating mean error second initialization...')
+meanError2=(total_errorProjected2/(n_points*2))
+line([meanError2 meanError2], ylim, 'Color','g');
+title('Reprojection Error lambda initialization proposed by [Sturm and Triggs 1996]:')
 
 
 %% Visualize projective reconstruction
