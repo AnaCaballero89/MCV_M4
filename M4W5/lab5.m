@@ -192,10 +192,10 @@ plot(x_d{2}(1,:),x_d{2}(2,:),'r*');
 plot(x_proj{2}(1,:),x_proj{2}(2,:),'bo');
 
 %%
-[Pproj, Xproj] = factorization_method(x1,x2,0);  % <---
+[Pproj2, Xproj2] = factorization_method(x1,x2,0);  % <---
 
 for i=1:2
-    x_proj2{i} = euclid(Pproj(3*i-2:3*i, :)*Xproj);
+    x_proj2{i} = euclid(Pproj2(3*i-2:3*i, :)*Xproj2);
 end
 
 % image 1
@@ -249,9 +249,9 @@ title('Reprojection Error lambda initialization proposed by [Sturm and Triggs 19
 
 
 %% Visualize projective reconstruction
-Xaux(1,:) = Xproj(1,:)./Xproj(4,:);
-Xaux(2,:) = Xproj(2,:)./Xproj(4,:);
-Xaux(3,:) = Xproj(3,:)./Xproj(4,:);
+Xaux(1,:) = Xproj2(1,:)./Xproj2(4,:);
+Xaux(2,:) = Xproj2(2,:)./Xproj2(4,:);
+Xaux(3,:) = Xproj2(3,:)./Xproj2(4,:);
 X=Xaux;
 
 figure;
