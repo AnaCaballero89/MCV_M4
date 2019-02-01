@@ -464,47 +464,44 @@ axis equal
 % 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 4. Projective reconstruction (real data)
-% close all;
-% clear;
-% clc;
-% 
+
 %% read images
 Irgb{1} = double(imread('Data/0000_s.png'))/255;
 Irgb{2} = double(imread('Data/0001_s.png'))/255;
 
-I{1} = sum(Irgb{1}, 3) / 3; 
-I{2} = sum(Irgb{2}, 3) / 3;
+I{1} = sum(Irgb{1}, 3)/3; 
+I{2} = sum(Irgb{2}, 3)/3;
 
 Ncam = length(I);
 
-% ToDo: compute a projective reconstruction using the factorization method
+% % ToDo: compute a projective reconstruction using the factorization method
 
 % Compute keypoints and matches.
-points = cell(2,1);
-descr = cell(2,1);
+keyPoints = cell(2,1);
+descriptors = cell(2,1);
 for i = 1:2
-    [points{i}, descr{i}] = sift(I{i}, 'Threshold', 0.01);
-    points{i} = points{i}(1:2,:);
+    [keyPoints{i}, descriptors{i}] = sift(I{i}, 'Threshold', 0.01);
+    keyPoints{i} = keyPoints{i}(1:2,:);
 end
 
-matches = siftmatch(descr{1}, descr{2});
+matches = siftmatch(descriptors{1}, descriptors{2});
 
 % Plot matches.
 figure();
-plotmatches(I{1}, I{2}, points{1}, points{2}, matches, 'Stacking', 'v');
+plotmatches(I{1}, I{2}, keyPoints{1}, keyPoints{2}, matches, 'Stacking', 'v');
 
 % Fit Fundamental matrix and remove outliers.
-x1m = points{1}(:, matches(1, :));
-x2m = points{2}(:, matches(2, :));
+x1m = keyPoints{1}(:, matches(1, :));
+x2m = keyPoints{2}(:, matches(2, :));
 [F, inliers] = ransac_fundamental_matrix(homog(x1m), homog(x2m), 2.0);
 
 % Plot inliers.
 inlier_matches = matches(:, inliers);
 figure;
-plotmatches(I{1}, I{2}, points{1}, points{2}, inlier_matches, 'Stacking', 'v');
+plotmatches(I{1}, I{2}, keyPoints{1}, keyPoints{2}, inlier_matches, 'Stacking', 'v');
 
-x1m = points{1}(:, inlier_matches(1, :));
-x2m = points{2}(:, inlier_matches(2, :));
+x1m = keyPoints{1}(:, inlier_matches(1, :));
+x2m = keyPoints{2}(:, inlier_matches(2, :));
 
 x1m = homog(x1m);
 x2m = homog(x2m);
@@ -514,8 +511,7 @@ x2m = homog(x2m);
 % points (of the reconstructed 3D points) in images 1 and 2. Reuse the code
 % in section 'Check projected points' (synthetic experiment).
 
-%% Check projected points (estimated and data points)
-[Pproj, Xm] = factorization_method(x1m,x2m,0);
+[Pproj, Xm] = factorization_method(x1m,x2m,1);
 for i=1:2
     x_proj{i} = euclid(Pproj(3*i-2:3*i, :)*Xm);
 end
@@ -536,6 +532,61 @@ imshow(Irgb{2})
 hold on
 plot(x_d{2}(1,:),x_d{2}(2,:),'r*');
 plot(x_proj{2}(1,:),x_proj{2}(2,:),'bo');
+
+[Pproj2, Xproj2] = factorization_method(x1m,x2m,0);  
+
+for i=1:2
+    x_proj2{i} = euclid(Pproj2(3*i-2:3*i, :)*Xproj2);
+end
+
+% image 1
+figure;
+hold on
+plot(x_d{1}(1,:),x_d{1}(2,:),'r*');
+plot(x_proj2{1}(1,:),x_proj2{1}(2,:),'bo');
+axis equal
+
+% image 2
+figure;
+hold on
+plot(x_d{2}(1,:),x_d{2}(2,:),'r*');
+plot(x_proj2{2}(1,:),x_proj2{2}(2,:),'bo');
+disp('ploting histogram...')
+
+
+%plot the histogram of reprojection errors, and
+projErrors11 = sqrt(sum((x_d{1}-x_proj{1}).^2, 1));
+projErrors12 = sqrt(sum((x_d{1}-x_proj{2}).^2, 1));
+
+projErrors21 = sqrt(sum((x_d{1}-x_proj2{1}).^2, 1));
+projErrors22 = sqrt(sum((x_d{2}-x_proj2{2}).^2, 1));
+
+subplot(2,1,1)
+histfit([projErrors11 projErrors12]);
+hold on
+
+totalErrorProjected_11 = sum(projErrors11)
+totalErrorProjected_12 = sum(projErrors12)
+
+%       plot the mean reprojection error
+total_errorProjected1 = totalErrorProjected_11+totalErrorProjected_12
+n_points = size(x1m,2);
+disp('calculating mean error first initialization...')
+meanError1=(total_errorProjected1/(n_points*2))
+line([meanError1 meanError1], ylim, 'Color','r');
+title('Reprojection Error lambda initialization in ones')
+
+
+subplot(2,1,2)
+histfit([projErrors21 projErrors22]);
+hold on
+totalErrorProjected_21 = sum(projErrors21)
+totalErrorProjected_22 = sum(projErrors22)
+total_errorProjected2 = totalErrorProjected_21+totalErrorProjected_22
+disp('calculating mean error second initialization...')
+meanError2 = (total_errorProjected2/(n_points*2))
+line([meanError2 meanError2], ylim, 'Color','g');
+title('Reprojection Error lambda initialization proposed by [Sturm and Triggs 1996]:')
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %% 5. Affine reconstruction (real data)
