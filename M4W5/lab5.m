@@ -66,7 +66,7 @@ K = [709 0 450; 0 709 300; 0 0 1];
 Rz = [cos(0.88*pi/2) -sin(0.88*pi/2) 0; sin(0.88*pi/2) cos(0.88*pi/2) 0; 0 0 1];
 Ry = [cos(0.88*pi/2) 0 sin(0.88*pi/2); 0 1 0; -sin(0.88*pi/2) 0 cos(0.88*pi/2)];
 R1 = Rz*Ry;
-t1 = -R1*[42; 5; 10];%for metric reconstruction
+t1 = -R1*[40; 11; 4];%for metric reconstruction
 
 Rz = [cos(0.8*pi/2) -sin(0.8*pi/2) 0; sin(0.8*pi/2) cos(0.8*pi/2) 0; 0 0 1];
 Ry = [cos(0.88*pi/2) 0 sin(0.88*pi/2); 0 1 0; -sin(0.88*pi/2) 0 cos(0.88*pi/2)];
@@ -280,7 +280,49 @@ plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
 plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
 plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
 X5 = X(:,17); X6 = X(:,18); X7 = X(:,19); X8 = X(:,20);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [XXaux(1,:) = Xproj2(1,:)./Xproj2(4,:);
+Xaux(2,:) = Xproj2(2,:)./Xproj2(4,:);
+Xaux(3,:) = Xproj2(3,:)./Xproj2(4,:);
+X=Xaux;
+
+figure;
+hold on;
+X1 = X(:,1); X2 = X(:,2); X3 = X(:,3); X4 = X(:,4);
+plot3([X1(1) X2(1)], [X1(2) X2(2)], [X1(3) X2(3)]);
+plot3([X3(1) X4(1)], [X3(2) X4(2)], [X3(3) X4(3)]);
+X5 = X(:,5); X6 = X(:,6); X7 = X2; X8 = X3;
 plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = X(:,7); X6 = X(:,8); X7 = X1; X8 = X4;
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = X(:,9); X6 = X(:,10); X7 = X(:,11); X8 = X(:,12);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = X(:,13); X6 = X(:,14); X7 = X(:,15); X8 = X(:,16);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = X(:,17); X6 = X(:,18); X7 = X(:,19); X8 = X(:,20);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = X(:,21); X6 = X(:,22); X7 = X(:,23); X8 = X(:,24);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+axis vis3d
+axis equal
+5(3) X6(3)]);
 plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
 plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
 plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
@@ -587,6 +629,49 @@ disp('calculating mean error second initialization...')
 meanError2 = (total_errorProjected2/(n_points*2))
 line([meanError2 meanError2], ylim, 'Color','g');
 title('Reprojection Error lambda initialization proposed by [Sturm and Triggs 1996]:')
+%%
+Xaux(1,:) = Xproj2(1,:)./Xproj2(4,:);
+Xaux(2,:) = Xproj2(2,:)./Xproj2(4,:);
+Xaux(3,:) = Xproj2(3,:)./Xproj2(4,:);
+X=Xaux;
+
+figure;
+hold on;
+X1 = X(:,1); X2 = X(:,2); X3 = X(:,3); X4 = X(:,4);
+plot3([X1(1) X2(1)], [X1(2) X2(2)], [X1(3) X2(3)]);
+plot3([X3(1) X4(1)], [X3(2) X4(2)], [X3(3) X4(3)]);
+X5 = X(:,5); X6 = X(:,6); X7 = X2; X8 = X3;
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = X(:,7); X6 = X(:,8); X7 = X1; X8 = X4;
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = X(:,9); X6 = X(:,10); X7 = X(:,11); X8 = X(:,12);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = X(:,13); X6 = X(:,14); X7 = X(:,15); X8 = X(:,16);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = X(:,17); X6 = X(:,18); X7 = X(:,19); X8 = X(:,20);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = X(:,21); X6 = X(:,22); X7 = X(:,23); X8 = X(:,24);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+axis vis3d
+axis equal
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %% 5. Affine reconstruction (real data)
@@ -624,13 +709,14 @@ load('variables2.mat')
 
 
 %%
-A = [triangulate(euclid(VPs(:,1)), euclid(VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])';
-     triangulate(euclid(VPs(:,2)), euclid(VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])';
-     triangulate(euclid(VPs(:,3)), euclid(VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])'];
+A = [triangulate((VPs(:,1)), (VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])';
+     triangulate((VPs(:,2)), (VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])';
+     triangulate((VPs(:,3)), (VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])'];
 
 % Find a transformation H that maps the plane
 % This plane contains all points at infinity
 [~,~,v] = svd(A);
+
 plane = v(:,end);
 plane = plane/plane(end);
 
@@ -655,18 +741,19 @@ end;
 axis equal;
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %% 6. Metric reconstruction (real data)
+%% 6. Metric reconstruction (real data)
 % 
 % % ToDo: compute the matrix Ha that updates the affine reconstruction
 % % to a metric one and visualize the result in 3D as in the previous section
-u = vanishing_point(VPs(:,1));
-v = vanishing_point(VPs(:,2));
-z = vanishing_point(VPs(:,3));
+u = homog(VPs(:,1));
+v = homog(VPs(:,2));
+z = homog(VPs(:,3));
 
 A_w = [u(1)*v(1),u(1)*v(2)+u(2)*v(1),u(1)*v(3)+u(3)*v(1),u(2)*v(2),u(2)*v(3)+u(3)*v(2),u(3)*v(3);...
-    u(1)*z(1),u(1)*z(2)+u(2)*z(1),u(1)*z(3)+u(3)*z(1),u(2)*z(2),u(2)*z(3)+u(3)*z(2),u(3)*z(3);...
-    v(1)*z(1),v(1)*z(2)+v(2)*z(1),v(1)*z(3)+v(3)*z(1),v(2)*z(2),v(2)*z(3)+v(3)*z(2),v(3)*z(3);...
-    0,1,0,0,0,0;1,0,0,-1,0,0];
+       u(1)*z(1),u(1)*z(2)+u(2)*z(1),u(1)*z(3)+u(3)*z(1),u(2)*z(2),u(2)*z(3)+u(3)*z(2),u(3)*z(3);...
+       v(1)*z(1),v(1)*z(2)+v(2)*z(1),v(1)*z(3)+v(3)*z(1),v(2)*z(2),v(2)*z(3)+v(3)*z(2),v(3)*z(3);...
+       0,        1,                  0,                  0,        0,                  0;
+       1,        0,                  0,                 -1,        0,                  0];
 
 [~,~,V]=svd(A_w,0);
 v = V(:,end);
@@ -703,41 +790,16 @@ Ha(1:3,1:3) = inv(A);
 % %% check results
 % 
 Xa = euclid(Ha*Hp*Xproj2);
+r = interp2(double(Irgb{1}(:,:,1)), x1m(1,:), x1m(2,:));
+g = interp2(double(Irgb{1}(:,:,2)), x1m(1,:), x1m(2,:));
+b = interp2(double(Irgb{1}(:,:,3)), x1m(1,:), x1m(2,:));
+
 figure;
+
 hold on;
-X1 = Xa(:,1); X2 = Xa(:,2); X3 = Xa(:,3); X4 = Xa(:,4);
-plot3([X1(1) X2(1)], [X1(2) X2(2)], [X1(3) X2(3)]);
-plot3([X3(1) X4(1)], [X3(2) X4(2)], [X3(3) X4(3)]);
-X5 = Xa(:,5); X6 = Xa(:,6); X7 = X2; X8 = X3;
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-X5 = Xa(:,7); X6 = Xa(:,8); X7 = X1; X8 = X4;
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-X5 = Xa(:,9); X6 = Xa(:,10); X7 = Xa(:,11); X8 = Xa(:,12);
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-X5 = Xa(:,13); X6 = Xa(:,14); X7 = Xa(:,15); X8 = Xa(:,16);
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-X5 = Xa(:,17); X6 = Xa(:,18); X7 = Xa(:,19); X8 = Xa(:,20);
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-X5 = Xa(:,21); X6 = Xa(:,22); X7 = Xa(:,23); X8 = Xa(:,24);
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+for i = 1:length(Xa)
+    scatter3(Xa(1,i), Xa(2,i), Xa(3,i), 2^2, [r(i) g(i) b(i)], 'filled');
+end;
 axis vis3d
 axis equal
 
