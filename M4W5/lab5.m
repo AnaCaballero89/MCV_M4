@@ -412,7 +412,7 @@ A particular value of A that satisfies this relationship is found by
 taking the Cholesky factorization of (MT?M)?1. This latter matrix is 
 guaranteed to be positive-definite (see result A4.5(p582)), otherwise 
 no such matrix A will exist, and metric reconstruction will not be possible.
-pag273
+pag 273
 %}
 %it can be resolved by cholesky
 A = chol(AAt);
@@ -611,7 +611,7 @@ params.PRINT = 1;
 params.PLOT = 1;
 %[horizon, VPs] = detect_vps(img_in, folder_out, manhattan, acceleration, focal_ratio, params);
 load('variables.mat')
-
+%%
 img_in =  'Data/0001_s.png'; % input image
 folder_out = '.'; % output folder
 manhattan = 1;
@@ -619,14 +619,14 @@ acceleration = 0;
 focal_ratio = 1;
 params.PRINT = 1;
 params.PLOT = 1;
-%[horizon, VPs] = detect_vps(img_in, folder_out, manhattan, acceleration, focal_ratio, params);
-load('variables.mat')
+%[horizon, VPs2] = detect_vps(img_in, folder_out, manhattan, acceleration, focal_ratio, params);
+load('variables2.mat')
 
 
 %%
-A = [triangulate(euclid(vp(1,1)), euclid(v2_1), horizon(1:3,:), horizon(4:6,:), [w h])';
-     triangulate(euclid(vp), euclid(v2_2), horizon(1:3,:), horizon(4:6,:), [w h])';
-     triangulate(euclid(v1_3), euclid(v2_3), horizon(1:3,:), horizon(4:6,:), [w h])'];
+A = [triangulate(euclid(VPs(:,1)), euclid(VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])';
+     triangulate(euclid(VPs(:,2)), euclid(VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])';
+     triangulate(euclid(VPs(:,3)), euclid(VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])'];
 
 % Find a transformation H that maps the plane
 % This plane contains all points at infinity
@@ -646,7 +646,7 @@ Hp(end,:) = plane'; % overwrite the last row with the plane transpose
 r = interp2(double(Irgb{1}(:,:,1)), x1m(1,:), x1m(2,:));
 g = interp2(double(Irgb{1}(:,:,2)), x1m(1,:), x1m(2,:));
 b = interp2(double(Irgb{1}(:,:,3)), x1m(1,:), x1m(2,:));
-Xe = euclid(Hp*Xm);
+Xe = euclid(Hp*Xproj2);
 figure; hold on;
 [w,h] = size(I{1});
 for i = 1:length(Xe)
@@ -659,7 +659,88 @@ axis equal;
 % 
 % % ToDo: compute the matrix Ha that updates the affine reconstruction
 % % to a metric one and visualize the result in 3D as in the previous section
+u = vanishing_point(VPs(:,1));
+v = vanishing_point(VPs(:,2));
+z = vanishing_point(VPs(:,3));
+
+A_w = [u(1)*v(1),u(1)*v(2)+u(2)*v(1),u(1)*v(3)+u(3)*v(1),u(2)*v(2),u(2)*v(3)+u(3)*v(2),u(3)*v(3);...
+    u(1)*z(1),u(1)*z(2)+u(2)*z(1),u(1)*z(3)+u(3)*z(1),u(2)*z(2),u(2)*z(3)+u(3)*z(2),u(3)*z(3);...
+    v(1)*z(1),v(1)*z(2)+v(2)*z(1),v(1)*z(3)+v(3)*z(1),v(2)*z(2),v(2)*z(3)+v(3)*z(2),v(3)*z(3);...
+    0,1,0,0,0,0;1,0,0,-1,0,0];
+
+[~,~,V]=svd(A_w,0);
+v = V(:,end);
+w = [v(1),v(2),v(3);
+     v(2),v(4),v(5);
+     v(3),v(5),v(6)];
+
+%an affine reconstruction can be transformed by applying a 3D
+%transformation H, 
+PM=Pproj2*inv(Hp);
+%Where PM=[M|m]
+M = PM(1:3,1:3);
+m= PM(4,:);
+
+%And by definition AA'= inv(M'*w*M)
+AAt = inv(M'*w*M);
+%{
+This is because the camera matrix may be decomposed as MM = KR, 
+and from (8.11? p210) ?? = ??1 = KKT. Combining this with MM = MA 
+gives ??1 = MAATMT, which may be rearranged as AAT = (MT?M)?1. 
+A particular value of A that satisfies this relationship is found by 
+taking the Cholesky factorization of (MT?M)?1. This latter matrix is 
+guaranteed to be positive-definite (see result A4.5(p582)), otherwise 
+no such matrix A will exist, and metric reconstruction will not be possible.
+pag 273
+%}
+%it can be resolved by cholesky
+A = chol(AAt);
+%then our transformation Ha can be computed as :
+
+Ha = eye(4,4);
+Ha(1:3,1:3) = inv(A);
+
+% %% check results
 % 
+Xa = euclid(Ha*Hp*Xproj2);
+figure;
+hold on;
+X1 = Xa(:,1); X2 = Xa(:,2); X3 = Xa(:,3); X4 = Xa(:,4);
+plot3([X1(1) X2(1)], [X1(2) X2(2)], [X1(3) X2(3)]);
+plot3([X3(1) X4(1)], [X3(2) X4(2)], [X3(3) X4(3)]);
+X5 = Xa(:,5); X6 = Xa(:,6); X7 = X2; X8 = X3;
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = Xa(:,7); X6 = Xa(:,8); X7 = X1; X8 = X4;
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = Xa(:,9); X6 = Xa(:,10); X7 = Xa(:,11); X8 = Xa(:,12);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = Xa(:,13); X6 = Xa(:,14); X7 = Xa(:,15); X8 = Xa(:,16);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = Xa(:,17); X6 = Xa(:,18); X7 = Xa(:,19); X8 = Xa(:,20);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = Xa(:,21); X6 = Xa(:,22); X7 = Xa(:,23); X8 = Xa(:,24);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+axis vis3d
+axis equal
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %% 7. OPTIONAL: Projective reconstruction from two views
 % 
