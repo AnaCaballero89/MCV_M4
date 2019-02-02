@@ -471,7 +471,7 @@ Irgb{2} = double(imread('Data/0001_s.png'))/255;
 
 I{1} = sum(Irgb{1}, 3)/3; 
 I{2} = sum(Irgb{2}, 3)/3;
-
+[h,w] = size(I{1});
 Ncam = length(I);
 
 % % ToDo: compute a projective reconstruction using the factorization method
@@ -600,6 +600,7 @@ title('Reprojection Error lambda initialization proposed by [Sturm and Triggs 19
 
 % This is an example on how to obtain the vanishing points (VPs) from three
 % orthogonal lines in image 1
+%% 
 
 img_in =  'Data/0000_s.png'; % input image
 folder_out = '.'; % output folder
@@ -608,7 +609,33 @@ acceleration = 0;
 focal_ratio = 1;
 params.PRINT = 1;
 params.PLOT = 1;
-[horizon, VPs] = detect_vps(img_in, folder_out, manhattan, acceleration, focal_ratio, params);
+%[horizon, VPs] = detect_vps(img_in, folder_out, manhattan, acceleration, focal_ratio, params);
+load('variables.mat')
+
+img_in =  'Data/0001_s.png'; % input image
+folder_out = '.'; % output folder
+manhattan = 1;
+acceleration = 0;
+focal_ratio = 1;
+params.PRINT = 1;
+params.PLOT = 1;
+%[horizon, VPs] = detect_vps(img_in, folder_out, manhattan, acceleration, focal_ratio, params);
+load('variables.mat')
+
+
+%%
+A = [triangulate(euclid(vp(1,1)), euclid(v2_1), horizon(1:3,:), horizon(4:6,:), [w h])';
+     triangulate(euclid(vp), euclid(v2_2), horizon(1:3,:), horizon(4:6,:), [w h])';
+     triangulate(euclid(v1_3), euclid(v2_3), horizon(1:3,:), horizon(4:6,:), [w h])'];
+
+% Find a transformation H that maps the plane
+% This plane contains all points at infinity
+[~,~,v] = svd(A);
+plane = v(:,end);
+plane = plane/plane(end);
+
+Hp = eye(4,4);      % the size is 4x4 as in the plots
+Hp(end,:) = plane'; % overwrite the last row with the plane transpose
 
 
 %% Visualize the result
