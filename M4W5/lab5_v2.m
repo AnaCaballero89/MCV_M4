@@ -476,285 +476,285 @@ plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
 plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
 axis vis3d
 axis equal
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 4. Projective reconstruction (real data)
-% 
-% %% read images
-% Irgb{1} = double(imread('Data/0000_s.png'))/255;
-% Irgb{2} = double(imread('Data/0001_s.png'))/255;
-% 
-% I{1} = sum(Irgb{1}, 3)/3; 
-% I{2} = sum(Irgb{2}, 3)/3;
-% [h,w] = size(I{1});
-% Ncam = length(I);
 
-% % % ToDo: compute a projective reconstruction using the factorization method
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 4. Projective reconstruction (real data)
+
+%% read images
+Irgb{1} = double(imread('Data/0000_s.png'))/255;
+Irgb{2} = double(imread('Data/0001_s.png'))/255;
+
+I{1} = sum(Irgb{1}, 3)/3; 
+I{2} = sum(Irgb{2}, 3)/3;
+[h,w] = size(I{1});
+Ncam = length(I);
+
+% % ToDo: compute a projective reconstruction using the factorization method
+
+% Compute keypoints and matches.
+keyPoints = cell(2,1);
+descriptors = cell(2,1);
+for i = 1:2
+    [keyPoints{i}, descriptors{i}] = sift(I{i}, 'Threshold', 0.01);
+    keyPoints{i} = keyPoints{i}(1:2,:);
+end
+
+matches = siftmatch(descriptors{1}, descriptors{2});
+
+% Plot matches.
+figure();
+plotmatches(I{1}, I{2}, keyPoints{1}, keyPoints{2}, matches, 'Stacking', 'v');
+
+% Fit Fundamental matrix and remove outliers.
+x1m = keyPoints{1}(:, matches(1, :));
+x2m = keyPoints{2}(:, matches(2, :));
+[F, inliers] = ransac_fundamental_matrix(homog(x1m), homog(x2m), 2.0);
+
+% Plot inliers.
+inlier_matches = matches(:, inliers);
+figure;
+plotmatches(I{1}, I{2}, keyPoints{1}, keyPoints{2}, inlier_matches, 'Stacking', 'v');
+
+x1m = keyPoints{1}(:, inlier_matches(1, :));
+x2m = keyPoints{2}(:, inlier_matches(2, :));
+
+x1m = homog(x1m);
+x2m = homog(x2m);
+
+
+% ToDo: show the data points (image correspondences) and the projected
+% points (of the reconstructed 3D points) in images 1 and 2. Reuse the code
+% in section 'Check projected points' (synthetic experiment).
+
+[Pproj, Xm] = factorization_method(x1m,x2m,1);
+for i=1:2
+    x_proj{i} = euclid(Pproj(3*i-2:3*i, :)*Xm);
+end
+x_d{1} = euclid(x1m);
+x_d{2} = euclid(x2m);
+
+% image 1
+figure;
+imshow(Irgb{1})
+hold on
+plot(x_d{1}(1,:),x_d{1}(2,:),'r*');
+plot(x_proj{1}(1,:),x_proj{1}(2,:),'bo');
+axis equal
+
+% image 2
+figure;
+imshow(Irgb{2})
+hold on
+plot(x_d{2}(1,:),x_d{2}(2,:),'r*');
+plot(x_proj{2}(1,:),x_proj{2}(2,:),'bo');
+
+[Pproj2, Xproj2] = factorization_method(x1m,x2m,0);  
+
+for i=1:2
+    x_proj2{i} = euclid(Pproj2(3*i-2:3*i, :)*Xproj2);
+end
+
+% image 1
+figure;
+hold on
+plot(x_d{1}(1,:),x_d{1}(2,:),'r*');
+plot(x_proj2{1}(1,:),x_proj2{1}(2,:),'bo');
+axis equal
+
+% image 2
+figure;
+hold on
+plot(x_d{2}(1,:),x_d{2}(2,:),'r*');
+plot(x_proj2{2}(1,:),x_proj2{2}(2,:),'bo');
+disp('ploting histogram...')
+
+
+%plot the histogram of reprojection errors, and
+projErrors11 = sqrt(sum((x_d{1}-x_proj{1}).^2, 1));
+projErrors12 = sqrt(sum((x_d{1}-x_proj{2}).^2, 1));
+
+projErrors21 = sqrt(sum((x_d{1}-x_proj2{1}).^2, 1));
+projErrors22 = sqrt(sum((x_d{2}-x_proj2{2}).^2, 1));
+
+subplot(2,1,1)
+histfit([projErrors11 projErrors12]);
+hold on
+
+totalErrorProjected_11 = sum(projErrors11)
+totalErrorProjected_12 = sum(projErrors12)
+
+%       plot the mean reprojection error
+total_errorProjected1 = totalErrorProjected_11+totalErrorProjected_12
+n_points = size(x1m,2);
+disp('calculating mean error first initialization...')
+meanError1=(total_errorProjected1/(n_points*2))
+line([meanError1 meanError1], ylim, 'Color','r');
+title('Reprojection Error lambda initialization in ones')
+
+
+subplot(2,1,2)
+histfit([projErrors21 projErrors22]);
+hold on
+totalErrorProjected_21 = sum(projErrors21)
+totalErrorProjected_22 = sum(projErrors22)
+total_errorProjected2 = totalErrorProjected_21+totalErrorProjected_22
+disp('calculating mean error second initialization...')
+meanError2 = (total_errorProjected2/(n_points*2))
+line([meanError2 meanError2], ylim, 'Color','g');
+title('Reprojection Error lambda initialization proposed by [Sturm and Triggs 1996]:')
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% 5. Affine reconstruction (real data)
 % 
-% % Compute keypoints and matches.
-% keyPoints = cell(2,1);
-% descriptors = cell(2,1);
-% for i = 1:2
-%     [keyPoints{i}, descriptors{i}] = sift(I{i}, 'Threshold', 0.01);
-%     keyPoints{i} = keyPoints{i}(1:2,:);
-% end
+% ToDo: compute the matrix Hp that updates the projective reconstruction
+% to an affine one
+%
+% You may use the vanishing points given by function 'detect_vps' that 
+% implements the method presented in Lezama et al. CVPR 2014
+% (http://dev.ipol.im/~jlezama/vanishing_points/)
+
+% This is an example on how to obtain the vanishing points (VPs) from three
+% orthogonal lines in image 1
+%% 
+img_in =  'Data/0000_s.png'; % input image
+folder_out = '.'; % output folder
+manhattan = 1;
+acceleration = 0;
+focal_ratio = 1;
+params.PRINT = 1;
+params.PLOT = 1;
+[horizon, VPs] = detect_vps(img_in, folder_out, manhattan, acceleration, focal_ratio, params);
+%load('variables.mat')
+%%
+img_in =  'Data/0001_s.png'; % input image
+folder_out = '.'; % output folder
+manhattan = 1;
+acceleration = 0;
+focal_ratio = 1;
+params.PRINT = 1;
+params.PLOT = 1;
+[horizon, VPs2] = detect_vps(img_in, folder_out, manhattan, acceleration, focal_ratio, params);
+%load('variables2.mat')
+
+
+%%
+A = [triangulate(euclid(VPs(:,1)), euclid(VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])';
+     triangulate(euclid(VPs(:,2)), euclid(VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])';
+     triangulate(euclid(VPs(:,3)), euclid(VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])'];
+
+% Find a transformation H that maps the plane
+% This plane contains all points at infinity
+[~,~,v] = svd(A);
+plane = v(:,end);
+plane = plane/plane(end);
+
+Hp = eye(4,4);      % the size is 4x4 as in the plots
+Hp(end,:) = plane'; % overwrite the last row with the plane transpose
+
+
+%% Visualize the result
+
+% x1m are the data points in image 1
+% Xm are the reconstructed 3D points (projective reconstruction)
+
+r = interp2(double(Irgb{1}(:,:,1)), x1m(1,:), x1m(2,:));
+g = interp2(double(Irgb{1}(:,:,2)), x1m(1,:), x1m(2,:));
+b = interp2(double(Irgb{1}(:,:,3)), x1m(1,:), x1m(2,:));
+Xe = euclid(Hp*Xproj2);
+figure; hold on;
+[w,h] = size(I{1});
+for i = 1:length(Xe)
+    scatter3(Xe(1,i), Xe(2,i), Xe(3,i), 2^2, [r(i) g(i) b(i)], 'filled');
+end;
+axis equal;
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% 6. Metric reconstruction (real data)
 % 
-% matches = siftmatch(descriptors{1}, descriptors{2});
+% % ToDo: compute the matrix Ha that updates the affine reconstruction
+% % to a metric one and visualize the result in 3D as in the previous section
+u = vanishing_point(VPs(:,1));
+v = vanishing_point(VPs(:,2));
+z = vanishing_point(VPs(:,3));
+
+A_w = [u(1)*v(1),u(1)*v(2)+u(2)*v(1),u(1)*v(3)+u(3)*v(1),u(2)*v(2),u(2)*v(3)+u(3)*v(2),u(3)*v(3);...
+    u(1)*z(1),u(1)*z(2)+u(2)*z(1),u(1)*z(3)+u(3)*z(1),u(2)*z(2),u(2)*z(3)+u(3)*z(2),u(3)*z(3);...
+    v(1)*z(1),v(1)*z(2)+v(2)*z(1),v(1)*z(3)+v(3)*z(1),v(2)*z(2),v(2)*z(3)+v(3)*z(2),v(3)*z(3);...
+    0,1,0,0,0,0;1,0,0,-1,0,0];
+
+[~,~,V]=svd(A_w,0);
+v = V(:,end);
+w = [v(1),v(2),v(3);
+     v(2),v(4),v(5);
+     v(3),v(5),v(6)];
+
+%an affine reconstruction can be transformed by applying a 3D
+%transformation H, 
+PM=Pproj2*inv(Hp);
+%Where PM=[M|m]
+M = PM(1:3,1:3);
+m= PM(4,:);
+
+%And by definition AA'= inv(M'*w*M)
+AAt = inv(M'*w*M);
+%{
+This is because the camera matrix may be decomposed as MM = KR, 
+and from (8.11? p210) ?? = ??1 = KKT. Combining this with MM = MA 
+gives ??1 = MAATMT, which may be rearranged as AAT = (MT?M)?1. 
+A particular value of A that satisfies this relationship is found by 
+taking the Cholesky factorization of (MT?M)?1. This latter matrix is 
+guaranteed to be positive-definite (see result A4.5(p582)), otherwise 
+no such matrix A will exist, and metric reconstruction will not be possible.
+pag 273
+%}
+%it can be resolved by cholesky
+A = chol(AAt);
+%then our transformation Ha can be computed as :
+
+Ha = eye(4,4);
+Ha(1:3,1:3) = inv(A);
+
+% %% check results
 % 
-% % Plot matches.
-% figure();
-% plotmatches(I{1}, I{2}, keyPoints{1}, keyPoints{2}, matches, 'Stacking', 'v');
-% 
-% % Fit Fundamental matrix and remove outliers.
-% x1m = keyPoints{1}(:, matches(1, :));
-% x2m = keyPoints{2}(:, matches(2, :));
-% [F, inliers] = ransac_fundamental_matrix(homog(x1m), homog(x2m), 2.0);
-% 
-% % Plot inliers.
-% inlier_matches = matches(:, inliers);
-% figure;
-% plotmatches(I{1}, I{2}, keyPoints{1}, keyPoints{2}, inlier_matches, 'Stacking', 'v');
-% 
-% x1m = keyPoints{1}(:, inlier_matches(1, :));
-% x2m = keyPoints{2}(:, inlier_matches(2, :));
-% 
-% x1m = homog(x1m);
-% x2m = homog(x2m);
-% 
-% 
-% % ToDo: show the data points (image correspondences) and the projected
-% % points (of the reconstructed 3D points) in images 1 and 2. Reuse the code
-% % in section 'Check projected points' (synthetic experiment).
-% 
-% [Pproj, Xm] = factorization_method(x1m,x2m,1);
-% for i=1:2
-%     x_proj{i} = euclid(Pproj(3*i-2:3*i, :)*Xm);
-% end
-% x_d{1} = euclid(x1m);
-% x_d{2} = euclid(x2m);
-% 
-% % image 1
-% figure;
-% imshow(Irgb{1})
-% hold on
-% plot(x_d{1}(1,:),x_d{1}(2,:),'r*');
-% plot(x_proj{1}(1,:),x_proj{1}(2,:),'bo');
-% axis equal
-% 
-% % image 2
-% figure;
-% imshow(Irgb{2})
-% hold on
-% plot(x_d{2}(1,:),x_d{2}(2,:),'r*');
-% plot(x_proj{2}(1,:),x_proj{2}(2,:),'bo');
-% 
-% [Pproj2, Xproj2] = factorization_method(x1m,x2m,0);  
-% 
-% for i=1:2
-%     x_proj2{i} = euclid(Pproj2(3*i-2:3*i, :)*Xproj2);
-% end
-% 
-% % image 1
-% figure;
-% hold on
-% plot(x_d{1}(1,:),x_d{1}(2,:),'r*');
-% plot(x_proj2{1}(1,:),x_proj2{1}(2,:),'bo');
-% axis equal
-% 
-% % image 2
-% figure;
-% hold on
-% plot(x_d{2}(1,:),x_d{2}(2,:),'r*');
-% plot(x_proj2{2}(1,:),x_proj2{2}(2,:),'bo');
-% disp('ploting histogram...')
-% 
-% 
-% %plot the histogram of reprojection errors, and
-% projErrors11 = sqrt(sum((x_d{1}-x_proj{1}).^2, 1));
-% projErrors12 = sqrt(sum((x_d{1}-x_proj{2}).^2, 1));
-% 
-% projErrors21 = sqrt(sum((x_d{1}-x_proj2{1}).^2, 1));
-% projErrors22 = sqrt(sum((x_d{2}-x_proj2{2}).^2, 1));
-% 
-% subplot(2,1,1)
-% histfit([projErrors11 projErrors12]);
-% hold on
-% 
-% totalErrorProjected_11 = sum(projErrors11)
-% totalErrorProjected_12 = sum(projErrors12)
-% 
-% %       plot the mean reprojection error
-% total_errorProjected1 = totalErrorProjected_11+totalErrorProjected_12
-% n_points = size(x1m,2);
-% disp('calculating mean error first initialization...')
-% meanError1=(total_errorProjected1/(n_points*2))
-% line([meanError1 meanError1], ylim, 'Color','r');
-% title('Reprojection Error lambda initialization in ones')
-% 
-% 
-% subplot(2,1,2)
-% histfit([projErrors21 projErrors22]);
-% hold on
-% totalErrorProjected_21 = sum(projErrors21)
-% totalErrorProjected_22 = sum(projErrors22)
-% total_errorProjected2 = totalErrorProjected_21+totalErrorProjected_22
-% disp('calculating mean error second initialization...')
-% meanError2 = (total_errorProjected2/(n_points*2))
-% line([meanError2 meanError2], ylim, 'Color','g');
-% title('Reprojection Error lambda initialization proposed by [Sturm and Triggs 1996]:')
-% 
-% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % %% 5. Affine reconstruction (real data)
-% % 
-% % ToDo: compute the matrix Hp that updates the projective reconstruction
-% % to an affine one
-% %
-% % You may use the vanishing points given by function 'detect_vps' that 
-% % implements the method presented in Lezama et al. CVPR 2014
-% % (http://dev.ipol.im/~jlezama/vanishing_points/)
-% 
-% % This is an example on how to obtain the vanishing points (VPs) from three
-% % orthogonal lines in image 1
-% %% 
-% img_in =  'Data/0000_s.png'; % input image
-% folder_out = '.'; % output folder
-% manhattan = 1;
-% acceleration = 0;
-% focal_ratio = 1;
-% params.PRINT = 1;
-% params.PLOT = 1;
-% %[horizon, VPs] = detect_vps(img_in, folder_out, manhattan, acceleration, focal_ratio, params);
-% load('variables.mat')
-% %%
-% img_in =  'Data/0001_s.png'; % input image
-% folder_out = '.'; % output folder
-% manhattan = 1;
-% acceleration = 0;
-% focal_ratio = 1;
-% params.PRINT = 1;
-% params.PLOT = 1;
-% %[horizon, VPs2] = detect_vps(img_in, folder_out, manhattan, acceleration, focal_ratio, params);
-% load('variables2.mat')
-% 
-% 
-% %%
-% A = [triangulate(euclid(VPs(:,1)), euclid(VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])';
-%      triangulate(euclid(VPs(:,2)), euclid(VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])';
-%      triangulate(euclid(VPs(:,3)), euclid(VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])'];
-% 
-% % Find a transformation H that maps the plane
-% % This plane contains all points at infinity
-% [~,~,v] = svd(A);
-% plane = v(:,end);
-% plane = plane/plane(end);
-% 
-% Hp = eye(4,4);      % the size is 4x4 as in the plots
-% Hp(end,:) = plane'; % overwrite the last row with the plane transpose
-% 
-% 
-% %% Visualize the result
-% 
-% % x1m are the data points in image 1
-% % Xm are the reconstructed 3D points (projective reconstruction)
-% 
-% r = interp2(double(Irgb{1}(:,:,1)), x1m(1,:), x1m(2,:));
-% g = interp2(double(Irgb{1}(:,:,2)), x1m(1,:), x1m(2,:));
-% b = interp2(double(Irgb{1}(:,:,3)), x1m(1,:), x1m(2,:));
-% Xe = euclid(Hp*Xproj2);
-% figure; hold on;
-% [w,h] = size(I{1});
-% for i = 1:length(Xe)
-%     scatter3(Xe(1,i), Xe(2,i), Xe(3,i), 2^2, [r(i) g(i) b(i)], 'filled');
-% end;
-% axis equal;
-% 
-% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % %% 6. Metric reconstruction (real data)
-% % 
-% % % ToDo: compute the matrix Ha that updates the affine reconstruction
-% % % to a metric one and visualize the result in 3D as in the previous section
-% u = vanishing_point(VPs(:,1));
-% v = vanishing_point(VPs(:,2));
-% z = vanishing_point(VPs(:,3));
-% 
-% A_w = [u(1)*v(1),u(1)*v(2)+u(2)*v(1),u(1)*v(3)+u(3)*v(1),u(2)*v(2),u(2)*v(3)+u(3)*v(2),u(3)*v(3);...
-%     u(1)*z(1),u(1)*z(2)+u(2)*z(1),u(1)*z(3)+u(3)*z(1),u(2)*z(2),u(2)*z(3)+u(3)*z(2),u(3)*z(3);...
-%     v(1)*z(1),v(1)*z(2)+v(2)*z(1),v(1)*z(3)+v(3)*z(1),v(2)*z(2),v(2)*z(3)+v(3)*z(2),v(3)*z(3);...
-%     0,1,0,0,0,0;1,0,0,-1,0,0];
-% 
-% [~,~,V]=svd(A_w,0);
-% v = V(:,end);
-% w = [v(1),v(2),v(3);
-%      v(2),v(4),v(5);
-%      v(3),v(5),v(6)];
-% 
-% %an affine reconstruction can be transformed by applying a 3D
-% %transformation H, 
-% PM=Pproj2*inv(Hp);
-% %Where PM=[M|m]
-% M = PM(1:3,1:3);
-% m= PM(4,:);
-% 
-% %And by definition AA'= inv(M'*w*M)
-% AAt = inv(M'*w*M);
-% %{
-% This is because the camera matrix may be decomposed as MM = KR, 
-% and from (8.11? p210) ?? = ??1 = KKT. Combining this with MM = MA 
-% gives ??1 = MAATMT, which may be rearranged as AAT = (MT?M)?1. 
-% A particular value of A that satisfies this relationship is found by 
-% taking the Cholesky factorization of (MT?M)?1. This latter matrix is 
-% guaranteed to be positive-definite (see result A4.5(p582)), otherwise 
-% no such matrix A will exist, and metric reconstruction will not be possible.
-% pag 273
-% %}
-% %it can be resolved by cholesky
-% A = chol(AAt);
-% %then our transformation Ha can be computed as :
-% 
-% Ha = eye(4,4);
-% Ha(1:3,1:3) = inv(A);
-% 
-% % %% check results
-% % 
-% Xa = euclid(Ha*Hp*Xproj2);
-% figure;
-% hold on;
-% X1 = Xa(:,1); X2 = Xa(:,2); X3 = Xa(:,3); X4 = Xa(:,4);
-% plot3([X1(1) X2(1)], [X1(2) X2(2)], [X1(3) X2(3)]);
-% plot3([X3(1) X4(1)], [X3(2) X4(2)], [X3(3) X4(3)]);
-% X5 = Xa(:,5); X6 = Xa(:,6); X7 = X2; X8 = X3;
-% plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-% plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-% plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-% plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-% X5 = Xa(:,7); X6 = Xa(:,8); X7 = X1; X8 = X4;
-% plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-% plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-% plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-% plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-% X5 = Xa(:,9); X6 = Xa(:,10); X7 = Xa(:,11); X8 = Xa(:,12);
-% plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-% plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-% plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-% plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-% X5 = Xa(:,13); X6 = Xa(:,14); X7 = Xa(:,15); X8 = Xa(:,16);
-% plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-% plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-% plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-% plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-% X5 = Xa(:,17); X6 = Xa(:,18); X7 = Xa(:,19); X8 = Xa(:,20);
-% plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-% plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-% plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-% plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-% X5 = Xa(:,21); X6 = Xa(:,22); X7 = Xa(:,23); X8 = Xa(:,24);
-% plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-% plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-% plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-% plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-% axis vis3d
-% axis equal
-% 
+Xa = euclid(Ha*Hp*Xproj2);
+figure;
+hold on;
+X1 = Xa(:,1); X2 = Xa(:,2); X3 = Xa(:,3); X4 = Xa(:,4);
+plot3([X1(1) X2(1)], [X1(2) X2(2)], [X1(3) X2(3)]);
+plot3([X3(1) X4(1)], [X3(2) X4(2)], [X3(3) X4(3)]);
+X5 = Xa(:,5); X6 = Xa(:,6); X7 = X2; X8 = X3;
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = Xa(:,7); X6 = Xa(:,8); X7 = X1; X8 = X4;
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = Xa(:,9); X6 = Xa(:,10); X7 = Xa(:,11); X8 = Xa(:,12);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = Xa(:,13); X6 = Xa(:,14); X7 = Xa(:,15); X8 = Xa(:,16);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = Xa(:,17); X6 = Xa(:,18); X7 = Xa(:,19); X8 = Xa(:,20);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = Xa(:,21); X6 = Xa(:,22); X7 = Xa(:,23); X8 = Xa(:,24);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+axis vis3d
+axis equal
+
 % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % %% 7. OPTIONAL: Projective reconstruction from two views
 % % 
