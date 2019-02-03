@@ -4,7 +4,8 @@
 
 addpath('../M4W2/sift'); % ToDo: change 'sift' to the correct path where you have the sift functions
 
-
+close all;
+clc;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 0. Create synthetic data
 
@@ -66,7 +67,8 @@ K = [709 0 450; 0 709 300; 0 0 1];
 Rz = [cos(0.88*pi/2) -sin(0.88*pi/2) 0; sin(0.88*pi/2) cos(0.88*pi/2) 0; 0 0 1];
 Ry = [cos(0.88*pi/2) 0 sin(0.88*pi/2); 0 1 0; -sin(0.88*pi/2) 0 cos(0.88*pi/2)];
 R1 = Rz*Ry;
-t1 = -R1*[42; 10; 5];%for metric reconstruction
+t1 = -R1*[42; 5; 10];%for metric reconstruction
+%t1 = -R1*[40; 11; 4]
 
 Rz = [cos(0.8*pi/2) -sin(0.8*pi/2) 0; sin(0.8*pi/2) cos(0.8*pi/2) 0; 0 0 1];
 Ry = [cos(0.88*pi/2) 0 sin(0.88*pi/2); 0 1 0; -sin(0.88*pi/2) 0 cos(0.88*pi/2)];
@@ -170,7 +172,7 @@ x2(3,:) = x2(3,:)./x2(3,:);
 % in the previous iteration.
 
 %% Check projected points (estimated and data points)
-[Pproj, Xproj] = factorization_method(x1,x2,0);  % <---
+[Pproj, Xproj] = factorization_method(x1,x2,1);  % <---
 
 for i=1:2
     x_proj{i} = euclid(Pproj(3*i-2:3*i, :)*Xproj);
@@ -192,7 +194,7 @@ plot(x_d{2}(1,:),x_d{2}(2,:),'r*');
 plot(x_proj{2}(1,:),x_proj{2}(2,:),'bo');
 
 %%
-[Pproj2, Xproj2] = factorization_method(x1,x2,1);  % <---
+[Pproj2, Xproj2] = factorization_method(x1,x2,0);  % <---
 
 for i=1:2
     x_proj2{i} = euclid(Pproj2(3*i-2:3*i, :)*Xproj2);
@@ -210,7 +212,7 @@ figure;
 hold on
 plot(x_d{2}(1,:),x_d{2}(2,:),'r*');
 plot(x_proj2{2}(1,:),x_proj2{2}(2,:),'bo');
-disp('ploting histogram...')
+
 
 
 %plot the histogram of reprojection errors, and
@@ -249,9 +251,9 @@ title('Reprojection Error lambda initialization proposed by [Sturm and Triggs 19
 
 
 %% Visualize projective reconstruction
-Xaux(1,:) = Xproj(1,:)./Xproj(4,:);
-Xaux(2,:) = Xproj(2,:)./Xproj(4,:);
-Xaux(3,:) = Xproj(3,:)./Xproj(4,:);
+Xaux(1,:) = Xproj2(1,:)./Xproj2(4,:);
+Xaux(2,:) = Xproj2(2,:)./Xproj2(4,:);
+Xaux(3,:) = Xproj2(3,:)./Xproj2(4,:);
 X=Xaux;
 
 figure;
@@ -294,7 +296,7 @@ axis equal
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 2. Affine reconstruction (synthetic data)
 
 % ToDo: create the function 'vanishing_point' that computes the vanishing
@@ -315,6 +317,7 @@ v2_3 = vanishing_point(x2(:,1),x2(:,2),x2(:,3),x2(:,4));
 
 % ToDo: use the vanishing points to compute the matrix Hp that 
 %       upgrades the projective reconstruction to an affine reconstruction
+
 % http://users.umiacs.umd.edu/~ramani/cmsc828d/lecture28.pdf
 % Find 3 intersections of sets of lines in the scene that are supposed to be parallel
 A = [triangulate(euclid(v1_1), euclid(v2_1), Pproj2(1:3,:), Pproj2(4:6,:), [w h])';
@@ -329,7 +332,6 @@ plane = plane/plane(end);
 
 Hp = eye(4,4);      % the size is 4x4 as in the plots
 Hp(end,:) = plane'; % overwrite the last row with the plane transpose
-
 
 %% check results
 
@@ -389,18 +391,37 @@ A_w = [u(1)*v(1),u(1)*v(2)+u(2)*v(1),u(1)*v(3)+u(3)*v(1),u(2)*v(2),u(2)*v(3)+u(3
     v(1)*z(1),v(1)*z(2)+v(2)*z(1),v(1)*z(3)+v(3)*z(1),v(2)*z(2),v(2)*z(3)+v(3)*z(2),v(3)*z(3);...
     0,1,0,0,0,0;1,0,0,-1,0,0];
 
+
 [~,~,V]=svd(A_w,0);
 v = V(:,end);
 w = [v(1),v(2),v(3);
      v(2),v(4),v(5);
      v(3),v(5),v(6)];
+%%===========
+%plane = V(:,end);
+%plane = plane/plane(end);
+
+% w = [plane(1), plane(2), plane(3);
+%      plane(2), plane(4), plane(5);
+%      plane(3), plane(5), plane(6)];
+
+%w = eye(3,3);      % the size is 4x4 as in the plots
+%w(end,:) = plane';
+%%===============
 
 %an affine reconstruction can be transformed by applying a 3D
 %transformation H, 
-PM=Pproj2*inv(Hp);
+
+PM=Pproj2/(Hp);
 %Where PM=[M|m]
 M = PM(1:3,1:3);
 m= PM(4,:);
+
+% size(Hp)
+% size(M)
+% size(w)
+% size(m)
+% size(PM)
 
 %And by definition AA'= inv(M'*w*M)
 AAt = inv(M'*w*M);
@@ -416,7 +437,7 @@ pag 273
 %}
 %it can be resolved by cholesky
 A = chol(AAt);
-%then our transformation Ha can be computed as :
+% then our transformation Ha can be computed as :
 
 Ha = eye(4,4);
 Ha(1:3,1:3) = inv(A);
@@ -461,8 +482,8 @@ plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
 plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
 axis vis3d
 axis equal
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 4. Projective reconstruction (real data)
 
 %% read images
@@ -533,7 +554,7 @@ hold on
 plot(x_d{2}(1,:),x_d{2}(2,:),'r*');
 plot(x_proj{2}(1,:),x_proj{2}(2,:),'bo');
 
-[Pproj2, Xproj2] = factorization_method(x1m,x2m,0); 
+[Pproj2, Xproj2] = factorization_method(x1m,x2m,0);  
 
 for i=1:2
     x_proj2{i} = euclid(Pproj2(3*i-2:3*i, :)*Xproj2);
@@ -587,49 +608,6 @@ disp('calculating mean error second initialization...')
 meanError2 = (total_errorProjected2/(n_points*2))
 line([meanError2 meanError2], ylim, 'Color','g');
 title('Reprojection Error lambda initialization proposed by [Sturm and Triggs 1996]:')
-%%
-Xaux(1,:) = Xproj2(1,:)./Xproj2(4,:);
-Xaux(2,:) = Xproj2(2,:)./Xproj2(4,:);
-Xaux(3,:) = Xproj2(3,:)./Xproj2(4,:);
-X=Xaux;
-
-figure;
-hold on;
-X1 = X(:,1); X2 = X(:,2); X3 = X(:,3); X4 = X(:,4);
-plot3([X1(1) X2(1)], [X1(2) X2(2)], [X1(3) X2(3)]);
-plot3([X3(1) X4(1)], [X3(2) X4(2)], [X3(3) X4(3)]);
-X5 = X(:,5); X6 = X(:,6); X7 = X2; X8 = X3;
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-X5 = X(:,7); X6 = X(:,8); X7 = X1; X8 = X4;
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-X5 = X(:,9); X6 = X(:,10); X7 = X(:,11); X8 = X(:,12);
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-X5 = X(:,13); X6 = X(:,14); X7 = X(:,15); X8 = X(:,16);
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-X5 = X(:,17); X6 = X(:,18); X7 = X(:,19); X8 = X(:,20);
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-X5 = X(:,21); X6 = X(:,22); X7 = X(:,23); X8 = X(:,24);
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-axis vis3d
-axis equal
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %% 5. Affine reconstruction (real data)
@@ -644,7 +622,6 @@ axis equal
 % This is an example on how to obtain the vanishing points (VPs) from three
 % orthogonal lines in image 1
 %% 
-
 img_in =  'Data/0000_s.png'; % input image
 folder_out = '.'; % output folder
 manhattan = 1;
@@ -652,8 +629,8 @@ acceleration = 0;
 focal_ratio = 1;
 params.PRINT = 1;
 params.PLOT = 1;
-%[horizon, VPs] = detect_vps(img_in, folder_out, manhattan, acceleration, focal_ratio, params);
-load('variables.mat')
+[horizon, VPs] = detect_vps(img_in, folder_out, manhattan, acceleration, focal_ratio, params);
+%load('variables.mat')
 %%
 img_in =  'Data/0001_s.png'; % input image
 folder_out = '.'; % output folder
@@ -662,19 +639,19 @@ acceleration = 0;
 focal_ratio = 1;
 params.PRINT = 1;
 params.PLOT = 1;
-%[horizon, VPs2] = detect_vps(img_in, folder_out, manhattan, acceleration, focal_ratio, params);
-load('variables2.mat')
+[horizon, VPs2] = detect_vps(img_in, folder_out, manhattan, acceleration, focal_ratio, params);
+%load('variables2.mat')
 
 
-%%
+%% 
 A = [triangulate((VPs(:,1)), (VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])';
      triangulate((VPs(:,2)), (VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])';
-     triangulate((VPs(:,3)), (VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])'];
-
+     triangulate((VPs(:,3)), (VPs2(:,1)), Pproj2(1:3,:), Pproj2(4:6,:), [w h])']; 
+ 
+ 
 % Find a transformation H that maps the plane
 % This plane contains all points at infinity
 [~,~,v] = svd(A);
-
 plane = v(:,end);
 plane = plane/plane(end);
 
@@ -699,7 +676,7 @@ end;
 axis equal;
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 6. Metric reconstruction (real data)
+% %% 6. Metric reconstruction (real data)
 % 
 % % ToDo: compute the matrix Ha that updates the affine reconstruction
 % % to a metric one and visualize the result in 3D as in the previous section
@@ -707,11 +684,10 @@ u = homog(VPs(:,1));
 v = homog(VPs(:,2));
 z = homog(VPs(:,3));
 
-A_w = [u(1)*v(1),u(1)*v(2)+u(2)*v(1),u(1)*v(3)+u(3)*v(1),u(2)*v(2),u(2)*v(3)+u(3)*v(2),u(3)*v(3);...
-       u(1)*z(1),u(1)*z(2)+u(2)*z(1),u(1)*z(3)+u(3)*z(1),u(2)*z(2),u(2)*z(3)+u(3)*z(2),u(3)*z(3);...
+A_w = [u(1)*z(1),u(1)*z(2)+u(2)*z(1),u(1)*z(3)+u(3)*z(1),u(2)*z(2),u(2)*z(3)+u(3)*z(2),u(3)*z(3);...
        v(1)*z(1),v(1)*z(2)+v(2)*z(1),v(1)*z(3)+v(3)*z(1),v(2)*z(2),v(2)*z(3)+v(3)*z(2),v(3)*z(3);...
        0,        1,                  0,                  0,        0,                  0;
-       1,        0,                  0,                 -1,        0,                  0];
+       1,        0,                  0,                 -1,        0,                  0];;
 
 [~,~,V]=svd(A_w,0);
 v = V(:,end);
@@ -753,8 +729,40 @@ g = interp2(double(Irgb{1}(:,:,2)), x1m(1,:), x1m(2,:));
 b = interp2(double(Irgb{1}(:,:,3)), x1m(1,:), x1m(2,:));
 
 figure;
-
 hold on;
+X1 = Xa(:,1); X2 = Xa(:,2); X3 = Xa(:,3); X4 = Xa(:,4);
+plot3([X1(1) X2(1)], [X1(2) X2(2)], [X1(3) X2(3)]);
+plot3([X3(1) X4(1)], [X3(2) X4(2)], [X3(3) X4(3)]);
+X5 = Xa(:,5); X6 = Xa(:,6); X7 = X2; X8 = X3;
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = Xa(:,7); X6 = Xa(:,8); X7 = X1; X8 = X4;
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = Xa(:,9); X6 = Xa(:,10); X7 = Xa(:,11); X8 = Xa(:,12);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = Xa(:,13); X6 = Xa(:,14); X7 = Xa(:,15); X8 = Xa(:,16);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = Xa(:,17); X6 = Xa(:,18); X7 = Xa(:,19); X8 = Xa(:,20);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
+X5 = Xa(:,21); X6 = Xa(:,22); X7 = Xa(:,23); X8 = Xa(:,24);
+plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
+plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
+plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
+plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
 for i = 1:length(Xa)
     scatter3(Xa(1,i), Xa(2,i), Xa(3,i), 2^2, [r(i) g(i) b(i)], 'filled');
 end;
@@ -784,4 +792,3 @@ axis equal
 % % Add a 4th view, incorporate new 3D points by triangulation, 
 % % incorporate new views by resectioning, 
 % % apply any kind of processing on the point cloud, ...)
-% 
