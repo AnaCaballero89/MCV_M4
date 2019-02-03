@@ -66,7 +66,7 @@ K = [709 0 450; 0 709 300; 0 0 1];
 Rz = [cos(0.88*pi/2) -sin(0.88*pi/2) 0; sin(0.88*pi/2) cos(0.88*pi/2) 0; 0 0 1];
 Ry = [cos(0.88*pi/2) 0 sin(0.88*pi/2); 0 1 0; -sin(0.88*pi/2) 0 cos(0.88*pi/2)];
 R1 = Rz*Ry;
-t1 = -R1*[40; 11; 4];%for metric reconstruction
+t1 = -R1*[42; 10; 5];%for metric reconstruction
 
 Rz = [cos(0.8*pi/2) -sin(0.8*pi/2) 0; sin(0.8*pi/2) cos(0.8*pi/2) 0; 0 0 1];
 Ry = [cos(0.88*pi/2) 0 sin(0.88*pi/2); 0 1 0; -sin(0.88*pi/2) 0 cos(0.88*pi/2)];
@@ -249,40 +249,9 @@ title('Reprojection Error lambda initialization proposed by [Sturm and Triggs 19
 
 
 %% Visualize projective reconstruction
-Xaux(1,:) = Xproj2(1,:)./Xproj2(4,:);
-Xaux(2,:) = Xproj2(2,:)./Xproj2(4,:);
-Xaux(3,:) = Xproj2(3,:)./Xproj2(4,:);
-X=Xaux;
-
-figure;
-hold on;
-X1 = X(:,1); X2 = X(:,2); X3 = X(:,3); X4 = X(:,4);
-plot3([X1(1) X2(1)], [X1(2) X2(2)], [X1(3) X2(3)]);
-plot3([X3(1) X4(1)], [X3(2) X4(2)], [X3(3) X4(3)]);
-X5 = X(:,5); X6 = X(:,6); X7 = X2; X8 = X3;
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-X5 = X(:,7); X6 = X(:,8); X7 = X1; X8 = X4;
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-X5 = X(:,9); X6 = X(:,10); X7 = X(:,11); X8 = X(:,12);
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-X5 = X(:,13); X6 = X(:,14); X7 = X(:,15); X8 = X(:,16);
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-X5 = X(:,17); X6 = X(:,18); X7 = X(:,19); X8 = X(:,20);
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [XXaux(1,:) = Xproj2(1,:)./Xproj2(4,:);
-Xaux(2,:) = Xproj2(2,:)./Xproj2(4,:);
-Xaux(3,:) = Xproj2(3,:)./Xproj2(4,:);
+Xaux(1,:) = Xproj(1,:)./Xproj(4,:);
+Xaux(2,:) = Xproj(2,:)./Xproj(4,:);
+Xaux(3,:) = Xproj(3,:)./Xproj(4,:);
 X=Xaux;
 
 figure;
@@ -312,17 +281,6 @@ plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
 plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
 X5 = X(:,17); X6 = X(:,18); X7 = X(:,19); X8 = X(:,20);
 plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-X5 = X(:,21); X6 = X(:,22); X7 = X(:,23); X8 = X(:,24);
-plot3([X5(1) X6(1)], [X5(2) X6(2)], [X5(3) X6(3)]);
-plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
-plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
-plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
-axis vis3d
-axis equal
-5(3) X6(3)]);
 plot3([X7(1) X8(1)], [X7(2) X8(2)], [X7(3) X8(3)]);
 plot3([X5(1) X7(1)], [X5(2) X7(2)], [X5(3) X7(3)]);
 plot3([X6(1) X8(1)], [X6(2) X8(2)], [X6(3) X8(3)]);
@@ -357,7 +315,6 @@ v2_3 = vanishing_point(x2(:,1),x2(:,2),x2(:,3),x2(:,4));
 
 % ToDo: use the vanishing points to compute the matrix Hp that 
 %       upgrades the projective reconstruction to an affine reconstruction
-
 % http://users.umiacs.umd.edu/~ramani/cmsc828d/lecture28.pdf
 % Find 3 intersections of sets of lines in the scene that are supposed to be parallel
 A = [triangulate(euclid(v1_1), euclid(v2_1), Pproj2(1:3,:), Pproj2(4:6,:), [w h])';
@@ -372,6 +329,7 @@ plane = plane/plane(end);
 
 Hp = eye(4,4);      % the size is 4x4 as in the plots
 Hp(end,:) = plane'; % overwrite the last row with the plane transpose
+
 
 %% check results
 
@@ -575,7 +533,7 @@ hold on
 plot(x_d{2}(1,:),x_d{2}(2,:),'r*');
 plot(x_proj{2}(1,:),x_proj{2}(2,:),'bo');
 
-[Pproj2, Xproj2] = factorization_method(x1m,x2m,0);  
+[Pproj2, Xproj2] = factorization_method(x1m,x2m,0); 
 
 for i=1:2
     x_proj2{i} = euclid(Pproj2(3*i-2:3*i, :)*Xproj2);
