@@ -375,9 +375,7 @@ axis equal
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 3. Metric reconstruction (synthetic data)
-%close all;
-clc;
-close all;
+
 % ToDo: compute the matrix Ha that 
 %       upgrades the projective reconstruction to an affine reconstruction
 % Use the following vanishing points given by three pair of orthogonal lines
@@ -410,7 +408,7 @@ w(end,:) = plane';
 %transformation H, 
 PM=Pproj2/(Hp);
 %Where PM=[M|m]
-M = PM(1:3,1:3);
+M = PM(:,1:3);
 m= PM(4,:);
 
 % size(Hp)
@@ -420,7 +418,7 @@ m= PM(4,:);
 % size(PM)
 
 %And by definition AA'= inv(M'*w*M)
-AAt = inv(PM'*w*PM);
+AAt = inv(M'*w*M);
 %{
 This is because the camera matrix may be decomposed as MM = KR, 
 and from (8.11? p210) ?? = ??1 = KKT. Combining this with MM = MA 
@@ -436,7 +434,7 @@ A = chol(AAt);
 % then our transformation Ha can be computed as :
 
 Ha = eye(4,4);
-Ha(1:4,1:4) = inv(A);
+Ha(1:3,1:3) = inv(A);
 
 % %% check results
 % 
