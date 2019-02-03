@@ -6,52 +6,57 @@ function [Pproj, Xproj] = factorization_method(x1,x2,in)
     % --- cam2 ---
     [q2, T2] = normalise2dpts(x2); 
     
-    % Estimate the fundamental matrices and epipoles for each camera
-    % --- cam1 ---
-    % fundamental matrix
-    f1 = fundamental_matrix(x1, x1);
-    % epipoles
-    % https://books.google.es/books?id=cQ9uCQAAQBAJ&pg=PA563&lpg=PA563&dq=svd+epipoles&source=bl&ots=GtE6K9aQxL&sig=ACfU3U0dNHtx1ntjntYQcYpyC9b-tIYGiQ&hl=ca&sa=X&ved=2ahUKEwicwdO67pPgAhWtgM4BHUhdCMsQ6AEwAnoECAQQAQ#v=onepage&q=svd%20epipoles&f=false
-    [~,~, v] = svd(f1);
-    e1 = v(:,3)/v(3,3);
-
-    % --- cam2 ---
-    % fundamental matrix
-    f2 = fundamental_matrix(x2, x1);
-    % epipoles
-    [~,~, v] = svd(f2);
-    e2 = v(:,3)/v(3,3);
-
-    % Determine the scale factors using eq 3 (lambda_ip)
-    % starting from some arbitrary initial value such as lambda_1p=1
-    lamda = ones(2,size(x1,2)); 
     
-    % a = (e_ij ^ q_ip)*(F_ij q_jp)
-    % b = ||e_ij ^q_ip||^2
-    % lambda_ip = a/b * lambda_jp
-    %% --- cam1 ---
-    for p = 1:size(x1,2)   
-        q1_ip = x1(:,p);
-        q2_ip = x2(:,p);
-        e1_ij = e1;
-        f1_ij = f1;
+    lamda = ones (2, size(x1,2));
+    if(in)
         
-        a = (q2_ip'*f1_ij)*cross(e1_ij, q1_ip)  ;
-        b = cross(e1_ij,x1(:,p));
-        lamda(1,p) = a/norm(b).^2 * lamda(1,p);
-    end
-    % --- cam2 ---
-    for p = 1:size(x2,2)
-        q1_ip = x1(:,p);
-        q2_ip = x2(:,p);
-        e2_ij = e2;
-        f2_ij = f2;
-        
-        a = (q1_ip'*f2_ij)*cross(e2_ij, q2_ip);
-        b = cross(e2_ij,q2_ip);
-        lamda(2,p) = a/norm(b).^2 * lamda(1,p);
+        % Estimate the fundamental matrices and epipoles for each camera
+        % --- cam1 ---
+        % fundamental matrix
+        f1 = fundamental_matrix(x1, x1);
+        % epipoles
+        % https://books.google.es/books?id=cQ9uCQAAQBAJ&pg=PA563&lpg=PA563&dq=svd+epipoles&source=bl&ots=GtE6K9aQxL&sig=ACfU3U0dNHtx1ntjntYQcYpyC9b-tIYGiQ&hl=ca&sa=X&ved=2ahUKEwicwdO67pPgAhWtgM4BHUhdCMsQ6AEwAnoECAQQAQ#v=onepage&q=svd%20epipoles&f=false
+        [~,~, v] = svd(f1);
+        e1 = v(:,3)/v(3,3);
+
+        % --- cam2 ---
+        % fundamental matrix
+        f2 = fundamental_matrix(x2, x1);
+        % epipoles
+        [~,~, v] = svd(f2);
+        e2 = v(:,3)/v(3,3);
+
+        % Determine the scale factors using eq 3 (lambda_ip)
+        % starting from some arbitrary initial value such as lambda_1p=1
+
+        % a = (e_ij ^ q_ip)*(F_ij q_jp)
+        % b = ||e_ij ^q_ip||^2
+        % lambda_ip = a/b * lambda_jp
+        %% --- cam1 ---
+        for p = 1:size(x1,2)   
+            q1_ip = x1(:,p);
+            q2_ip = x2(:,p);
+            e1_ij = e1;
+            f1_ij = f1;
+
+            a = (q2_ip'*f1_ij)*cross(e1_ij, q1_ip)  ;
+            b = cross(e1_ij,x1(:,p));
+            lamda(1,p) = a/norm(b).^2 * lamda(1,p);
+        end
+        % --- cam2 ---
+        for p = 1:size(x2,2)
+            q1_ip = x1(:,p);
+            q2_ip = x2(:,p);
+            e2_ij = e2;
+            f2_ij = f2;
+
+            a = (q1_ip'*f2_ij)*cross(e2_ij, q2_ip);
+            b = cross(e2_ij,q2_ip);
+            lamda(2,p) = a/norm(b).^2 * lamda(1,p);
+        end
     end
  
+    
     
     % Balance W ,by column-wise and ?triplet-of-rows?-wise scalar mutliplication,
      d= Inf;
@@ -89,9 +94,10 @@ function [Pproj, Xproj] = factorization_method(x1,x2,in)
             i = i +1;
         end  % end while rescale
 
-        if(in)
+        if(in==0)
           lamda = ones(2,size(x1,2)); 
         end  
+
         % Build the rescaled measurement matrix W
         % pg 5 of the paper, (3.2)
         W = zeros(3*2, size(x1,2));
